@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+      select: false,
     },
     verified: {
       type: Boolean,
@@ -39,6 +40,9 @@ userSchema.pre("save", async function () {
 })
 
 userSchema.methods.comparePassword = async function (candidatePassword) {
+  if (!this.password) {
+    throw new Error("Password is not set for this user.")
+  }
   return await bcrypt.compare(candidatePassword, this.password)
 }
 
