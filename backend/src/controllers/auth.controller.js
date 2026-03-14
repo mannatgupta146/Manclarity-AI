@@ -25,7 +25,7 @@ export async function register(req, res) {
         email: user.email,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "10m" }
+      { expiresIn: "10m" },
     )
 
     await sendEmail({
@@ -103,7 +103,6 @@ export async function verifyEmail(req, res) {
         </body>
       </html>
     `)
-
   } catch (err) {
     return res.status(400).send(`
       <html>
@@ -142,7 +141,7 @@ export async function resendVerificationEmail(req, res) {
         email: user.email,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "10m" }
+      { expiresIn: "10m" },
     )
 
     await sendEmail({
@@ -161,7 +160,6 @@ export async function resendVerificationEmail(req, res) {
       message: "Verification email resent",
       success: true,
     })
-
   } catch (error) {
     console.error("Error resending verification email:", error)
 
@@ -208,7 +206,7 @@ export async function login(req, res) {
         email: user.email,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     )
 
     res.cookie("token", token, {
@@ -227,7 +225,6 @@ export async function login(req, res) {
         email: user.email,
       },
     })
-
   } catch (error) {
     console.error("Error logging in user:", error)
 
@@ -256,7 +253,6 @@ export async function getMe(req, res) {
       success: true,
       user,
     })
-
   } catch (error) {
     console.error("Error retrieving user info:", error)
 

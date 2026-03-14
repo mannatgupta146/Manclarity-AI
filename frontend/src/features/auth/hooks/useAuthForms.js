@@ -7,7 +7,7 @@ export const useLoginForm = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const { login, loading } = useAuth()
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -65,7 +65,9 @@ export const useRegisterForm = () => {
     try {
       console.log("Registering with:", form)
       await register(form.username, form.email, form.password)
-      setError("Registration successful! Please check your email to verify your account.")
+      setError(
+        "Registration successful! Please check your email to verify your account.",
+      )
     } catch (err) {
       console.error("Register error:", err)
       if (err && err.response) {
@@ -74,7 +76,11 @@ export const useRegisterForm = () => {
           setError(err.response.data.message)
           return
         }
-        if (err.response.data && err.response.data.errors && Array.isArray(err.response.data.errors)) {
+        if (
+          err.response.data &&
+          err.response.data.errors &&
+          Array.isArray(err.response.data.errors)
+        ) {
           setError(err.response.data.errors[0].msg)
           return
         }

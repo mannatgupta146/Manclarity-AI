@@ -162,17 +162,16 @@ const Login = () => {
 
         {/* Submit */}
         <button
-        type="submit"
-        className="w-full py-2 rounded font-semibold transition duration-200 hover:brightness-110 active:scale-95"
-        style={{
+          type="submit"
+          className="w-full py-2 rounded font-semibold transition duration-200 hover:brightness-110 active:scale-95"
+          style={{
             background: "var(--color-accent)",
             color: "#fff",
-        }}
-        disabled={loading}
+          }}
+          disabled={loading}
         >
-        {loading ? "Logging in..." : "Login"}
+          {loading ? "Logging in..." : "Login"}
         </button>
-
 
         {/* Register */}
         <div className="mt-6 text-center">
