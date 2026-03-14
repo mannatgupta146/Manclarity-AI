@@ -72,33 +72,48 @@ export async function verifyEmail(req, res) {
     const user = await userModel.findOne({ email: decoded.email })
 
     if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-        success: false,
-      })
+      return res.status(404).send(`
+        <h2>User not found</h2>
+        <p>No account exists for this verification link.</p>
+      `)
     }
 
+    // If already verified
     if (user.verified) {
       return res.send(`
-        <h2>Email already verified</h2>
-        <p>You can login to Manclarity AI.</p>
+        <html>
+          <body style="font-family:sans-serif;text-align:center;padding-top:50px">
+            <h2>Email Already Verified</h2>
+            <p>Your email is already verified.</p>
+            <a href="http://localhost:5173/login">Go to Login</a>
+          </body>
+        </html>
       `)
     }
 
     user.verified = true
     await user.save()
 
-    res.send(`
-      <h2>Email Verified Successfully</h2>
-      <p>Your account is now active.</p>
-      <p>You can now login and start using Manclarity AI.</p>
+    return res.send(`
+      <html>
+        <body style="font-family:sans-serif;text-align:center;padding-top:50px">
+          <h2>Email Verified Successfully</h2>
+          <p>Your account is now active.</p>
+          <a href="http://localhost:5173/login">Login to Manclarity</a>
+        </body>
+      </html>
     `)
 
   } catch (err) {
-    return res.status(400).json({
-      message: "Invalid or expired verification link",
-      success: false,
-    })
+    return res.status(400).send(`
+      <html>
+        <body style="font-family:sans-serif;text-align:center;padding-top:50px">
+          <h2>Invalid or Expired Link</h2>
+          <p>This verification link is invalid or has expired.</p>
+          <a href="http://localhost:5173/resend-verification">Resend verification email</a>
+        </body>
+      </html>
+    `)
   }
 }
 
