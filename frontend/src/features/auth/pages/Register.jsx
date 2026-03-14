@@ -39,14 +39,19 @@ const Register = () => {
             {error}
           </div>
         )}
-        <div className="mb-6 text-center">
+        <div className="mb-6 text-center flex flex-col items-center">
+          <img
+            src="/brand.png"
+            alt="Manclarity AI Logo"
+            style={{ width: 45, height: 45 }}
+            className="mb-2 mx-auto"
+          />
           <h2
             className="text-3xl font-extrabold mb-2"
             style={{ color: "var(--color-accent)" }}
           >
             Create Account
           </h2>
-
           <p className="text-sm" style={{ color: "var(--color-secondary)" }}>
             Welcome! Please fill in your details to register.
           </p>
