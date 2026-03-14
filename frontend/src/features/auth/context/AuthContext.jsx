@@ -12,11 +12,17 @@ export const AuthProvider = ({ children }) => {
     try {
       const data = await loginApi(email, password)
       setUser(data.user || null)
+      setLoading(false)
+      return data
     } catch (err) {
-      // Optionally handle error
       setUser(null)
+      setLoading(false)
+      // Try to extract backend error message
+      if (err.response && err.response.data && err.response.data.message) {
+        throw new Error(err.response.data.message)
+      }
+      throw new Error("Login failed")
     }
-    setLoading(false)
   }
 
   const register = async (name, email, password) => {

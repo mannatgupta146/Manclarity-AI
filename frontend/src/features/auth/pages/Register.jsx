@@ -12,6 +12,8 @@ const Register = () => {
     loading,
     showPassword,
     togglePassword,
+    error,
+    setError,
   } = useRegisterForm()
 
   const { theme } = useTheme()
@@ -31,6 +33,12 @@ const Register = () => {
           borderColor: "var(--color-border)",
         }}
       >
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 text-red-500 text-center text-sm font-medium">
+            {error}
+          </div>
+        )}
         <div className="mb-6 text-center">
           <h2
             className="text-3xl font-extrabold mb-2"
@@ -44,19 +52,22 @@ const Register = () => {
           </p>
         </div>
 
-        {/* Name */}
+        {/* Username */}
         <div className="mb-4">
           <label
+            htmlFor="register-username"
             className="block mb-1 font-medium"
             style={{ color: "var(--color-primary)" }}
           >
-            Full Name
+            Username
           </label>
 
           <input
+            id="register-username"
             type="text"
-            name="name"
-            value={form.name}
+            name="username"
+            autoComplete="username"
+            value={form.username}
             onChange={handleChange}
             className="w-full px-3 py-2 border rounded focus:outline-none"
             style={{
@@ -65,13 +76,14 @@ const Register = () => {
               color: "var(--color-input-text)",
             }}
             required
-            placeholder="Enter your full name"
+            placeholder="Enter your username"
           />
         </div>
 
         {/* Email */}
         <div className="mb-4">
           <label
+            htmlFor="register-email"
             className="block mb-1 font-medium"
             style={{ color: "var(--color-primary)" }}
           >
@@ -79,8 +91,10 @@ const Register = () => {
           </label>
 
           <input
+            id="register-email"
             type="email"
             name="email"
+            autoComplete="email"
             value={form.email}
             onChange={handleChange}
             className="w-full px-3 py-2 border rounded focus:outline-none"
@@ -97,6 +111,7 @@ const Register = () => {
         {/* Password */}
         <div className="mb-6 relative">
           <label
+            htmlFor="register-password"
             className="block mb-1 font-medium"
             style={{ color: "var(--color-primary)" }}
           >
@@ -104,8 +119,10 @@ const Register = () => {
           </label>
 
           <input
+            id="register-password"
             type={showPassword ? "text" : "password"}
             name="password"
+            autoComplete="new-password"
             value={form.password}
             onChange={handleChange}
             className="w-full px-3 py-2 border rounded focus:outline-none"

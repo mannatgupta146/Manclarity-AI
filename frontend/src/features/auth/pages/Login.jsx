@@ -12,6 +12,8 @@ const Login = () => {
     loading,
     showPassword,
     togglePassword,
+    error,
+    setError,
   } = useLoginForm()
 
   const { theme } = useTheme()
@@ -44,9 +46,16 @@ const Login = () => {
           </p>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 text-red-500 text-center text-sm font-medium">
+            {error}
+          </div>
+        )}
         {/* Email */}
         <div className="mb-4">
           <label
+            htmlFor="login-email"
             className="block mb-1 font-medium"
             style={{ color: "var(--color-primary)" }}
           >
@@ -54,8 +63,10 @@ const Login = () => {
           </label>
 
           <input
+            id="login-email"
             type="email"
             name="email"
+            autoComplete="email"
             value={form.email}
             onChange={handleChange}
             className="w-full px-3 py-2 border rounded focus:outline-none"
@@ -72,6 +83,7 @@ const Login = () => {
         {/* Password */}
         <div className="mb-6 relative">
           <label
+            htmlFor="login-password"
             className="block mb-1 font-medium"
             style={{ color: "var(--color-primary)" }}
           >
@@ -79,8 +91,10 @@ const Login = () => {
           </label>
 
           <input
+            id="login-password"
             type={showPassword ? "text" : "password"}
             name="password"
+            autoComplete="current-password"
             value={form.password}
             onChange={handleChange}
             className="w-full px-3 py-2 border rounded focus:outline-none"

@@ -35,7 +35,7 @@ export async function register(req, res) {
         <h2>Welcome to Manclarity AI, ${username}!</h2>
         <p>Thank you for registering. We're excited to have you on board!</p>
         <p>Please verify your email address by clicking the link below:</p>
-        <a href="http://localhost:3000/api/auth/verify-email?token=${emailVerificationToken}">
+        <a href="http://localhost:5173/verify-email?token=${emailVerificationToken}">
           Verify Email
         </a>
         <p>If you have any questions or need assistance, feel free to reach out.</p>
