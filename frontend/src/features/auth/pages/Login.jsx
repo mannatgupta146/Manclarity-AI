@@ -1,6 +1,8 @@
 import React from "react"
 import { useLoginForm } from "../hooks/useAuthForms"
 import { Link } from "react-router-dom"
+import { useTheme } from "../../../theme/ThemeContext"
+import ThemeToggleButton from "../../../theme/ThemeToggleButton"
 
 const Login = () => {
   const {
@@ -11,47 +13,86 @@ const Login = () => {
     showPassword,
     togglePassword,
   } = useLoginForm()
+
+  const { theme } = useTheme()
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#f8fafc]">
+    <div
+      className="flex items-center justify-center min-h-screen"
+      style={{ background: "var(--color-bg)" }}
+    >
+      <ThemeToggleButton />
+
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-105 border border-blue-100"
+        className="p-8 rounded-3xl shadow-lg w-full max-w-105 border"
+        style={{
+          background: "var(--color-card)",
+          borderColor: "var(--color-border)",
+        }}
       >
         <div className="mb-6 text-center">
-          <h2 className="text-3xl font-extrabold text-blue-700 mb-2">
+          <h2
+            className="text-3xl font-extrabold mb-2"
+            style={{ color: "var(--color-accent)" }}
+          >
             Welcome Back
           </h2>
-          <p className="text-gray-500 text-sm">
+
+          <p className="text-sm" style={{ color: "var(--color-secondary)" }}>
             Sign in to your account to continue.
           </p>
         </div>
+
+        {/* Email */}
         <div className="mb-4">
-          <label className="block mb-1 text-gray-700 font-medium">
+          <label
+            className="block mb-1 font-medium"
+            style={{ color: "var(--color-primary)" }}
+          >
             Email Address
           </label>
+
           <input
             type="email"
             name="email"
             value={form.email}
             onChange={handleChange}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400 bg-[#f8fafc]"
+            className="w-full px-3 py-2 border rounded focus:outline-none"
+            style={{
+              background: "var(--color-input-bg)",
+              borderColor: "var(--color-input-border)",
+              color: "var(--color-input-text)",
+            }}
             required
             placeholder="Enter your email"
           />
         </div>
+
+        {/* Password */}
         <div className="mb-6 relative">
-          <label className="block mb-1 text-gray-700 font-medium">
+          <label
+            className="block mb-1 font-medium"
+            style={{ color: "var(--color-primary)" }}
+          >
             Password
           </label>
+
           <input
             type={showPassword ? "text" : "password"}
             name="password"
             value={form.password}
             onChange={handleChange}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400 bg-[#f8fafc]"
+            className="w-full px-3 py-2 border rounded focus:outline-none"
+            style={{
+              background: "var(--color-input-bg)",
+              borderColor: "var(--color-input-border)",
+              color: "var(--color-input-text)",
+            }}
             required
             placeholder="Enter your password"
           />
+
           <button
             type="button"
             onClick={togglePassword}
@@ -104,18 +145,30 @@ const Login = () => {
             )}
           </button>
         </div>
+
+        {/* Submit */}
         <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700 transition"
-          disabled={loading}
+        type="submit"
+        className="w-full py-2 rounded font-semibold transition duration-200 hover:brightness-110 active:scale-95"
+        style={{
+            background: "var(--color-accent)",
+            color: "#fff",
+        }}
+        disabled={loading}
         >
-          {loading ? "Logging in..." : "Login"}
+        {loading ? "Logging in..." : "Login"}
         </button>
+
+
+        {/* Register */}
         <div className="mt-6 text-center">
-          <span className="text-gray-600">Don't have an account?</span>
+          <span style={{ color: "var(--color-secondary)" }}>
+            Don't have an account?
+          </span>
+
           <Link
             to="/register"
-            className="text-blue-600 hover:underline ml-1 font-medium"
+            className="ml-1 font-medium underline-offset-2 custom-link"
           >
             Register
           </Link>

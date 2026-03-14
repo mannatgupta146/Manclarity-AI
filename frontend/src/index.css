@@ -1,1 +1,84 @@
 @import "tailwindcss";
+
+/* Theme color variables for easy customization */
+:root {
+  --color-bg: #f6f7fb;
+  --color-card: #ffffff;
+  --color-border: #e6e8ef;
+
+  --color-primary: #111827;
+  --color-secondary: #6b7280;
+
+  --color-accent: #ff6a4a;
+  --color-accent-hover: #f2522f;
+
+  --color-link: #ff6a4a;
+  --color-link-hover: #ff876d;
+
+  --color-input-bg: #ffffff;
+  --color-input-border: #e6e8ef;
+  --color-input-text: #111827;
+  --color-input-placeholder: #9ca3af;
+
+  --color-toggle-bg: #eef0f6;
+  --color-toggle-text: #9a3412;
+
+  --color-focus-ring: #ff876d;
+}
+
+.dark {
+  --color-bg: #0f0f12;
+  --color-card: #1b1b20;
+  --color-border: #2a2a31;
+
+  --color-primary: #f3f4f6;
+  --color-secondary: #9ca3af;
+
+  --color-accent: #ff7a59;
+  --color-accent-hover: #ff5c38;
+
+  --color-link: #ff7a59;
+  --color-link-hover: #ff947a;
+
+  --color-input-bg: #1b1b20;
+  --color-input-border: #2a2a31;
+  --color-input-text: #f3f4f6;
+  --color-input-placeholder: #9ca3af;
+
+  --color-toggle-bg-dark: #26262c;
+  --color-toggle-text-dark: #ff9c86;
+
+  --color-focus-ring-dark: #ff6b4a;
+}
+
+/* Input focus styling */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  box-shadow: 0 0 0 2px var(--color-focus-ring-dark);
+}
+
+/* Placeholder styling */
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-input-placeholder);
+}
+
+/* Link color */
+a,
+.custom-link {
+  color: var(--color-link);
+  transition: color 0.2s ease;
+}
+
+a:hover,
+.custom-link:hover {
+  color: var(--color-link-hover) !important;
+}

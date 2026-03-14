@@ -1,6 +1,8 @@
 import React from "react"
 import { useRegisterForm } from "../hooks/useAuthForms"
 import { Link } from "react-router-dom"
+import { useTheme } from "../../../theme/ThemeContext"
+import ThemeToggleButton from "../../../theme/ThemeToggleButton"
 
 const Register = () => {
   const {
@@ -11,61 +13,111 @@ const Register = () => {
     showPassword,
     togglePassword,
   } = useRegisterForm()
+
+  const { theme } = useTheme()
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-blue-100 to-blue-300">
+    <div
+      className="flex items-center justify-center min-h-screen"
+      style={{ background: "var(--color-bg)" }}
+    >
+      <ThemeToggleButton />
+
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-105 border border-blue-100"
+        className="p-8 rounded-3xl shadow-lg w-full max-w-105 border"
+        style={{
+          background: "var(--color-card)",
+          borderColor: "var(--color-border)",
+        }}
       >
         <div className="mb-6 text-center">
-          <h2 className="text-3xl font-extrabold text-blue-700 mb-2">
+          <h2
+            className="text-3xl font-extrabold mb-2"
+            style={{ color: "var(--color-accent)" }}
+          >
             Create Account
           </h2>
-          <p className="text-gray-500 text-sm">
+
+          <p className="text-sm" style={{ color: "var(--color-secondary)" }}>
             Welcome! Please fill in your details to register.
           </p>
         </div>
+
+        {/* Name */}
         <div className="mb-4">
-          <label className="block mb-1 text-gray-700 font-medium">
+          <label
+            className="block mb-1 font-medium"
+            style={{ color: "var(--color-primary)" }}
+          >
             Full Name
           </label>
+
           <input
             type="text"
             name="name"
             value={form.name}
             onChange={handleChange}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400 bg-[#f8fafc]"
+            className="w-full px-3 py-2 border rounded focus:outline-none"
+            style={{
+              background: "var(--color-input-bg)",
+              borderColor: "var(--color-input-border)",
+              color: "var(--color-input-text)",
+            }}
             required
             placeholder="Enter your full name"
           />
         </div>
+
+        {/* Email */}
         <div className="mb-4">
-          <label className="block mb-1 text-gray-700 font-medium">
+          <label
+            className="block mb-1 font-medium"
+            style={{ color: "var(--color-primary)" }}
+          >
             Email Address
           </label>
+
           <input
             type="email"
             name="email"
             value={form.email}
             onChange={handleChange}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400 bg-[#f8fafc]"
+            className="w-full px-3 py-2 border rounded focus:outline-none"
+            style={{
+              background: "var(--color-input-bg)",
+              borderColor: "var(--color-input-border)",
+              color: "var(--color-input-text)",
+            }}
             required
             placeholder="Enter your email"
           />
         </div>
+
+        {/* Password */}
         <div className="mb-6 relative">
-          <label className="block mb-1 text-gray-700 font-medium">
+          <label
+            className="block mb-1 font-medium"
+            style={{ color: "var(--color-primary)" }}
+          >
             Password
           </label>
+
           <input
             type={showPassword ? "text" : "password"}
             name="password"
             value={form.password}
             onChange={handleChange}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400 bg-[#f8fafc]"
+            className="w-full px-3 py-2 border rounded focus:outline-none"
+            style={{
+              background: "var(--color-input-bg)",
+              borderColor: "var(--color-input-border)",
+              color: "var(--color-input-text)",
+            }}
             required
             placeholder="Create a password"
           />
+
           <button
             type="button"
             onClick={togglePassword}
@@ -118,18 +170,30 @@ const Register = () => {
             )}
           </button>
         </div>
+
+        {/* Submit */}
         <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700 transition"
-          disabled={loading}
+        type="submit"
+        className="w-full py-2 rounded font-semibold transition hover:brightness-110 active:scale-95"
+        style={{
+            background: "var(--color-accent)",
+            color: "#fff",
+        }}
+        disabled={loading}
         >
-          {loading ? "Registering..." : "Register"}
+        {loading ? "Registering..." : "Register"}
         </button>
+
+
+        {/* Login */}
         <div className="mt-6 text-center">
-          <span className="text-gray-600">Already have an account?</span>
+          <span style={{ color: "var(--color-secondary)" }}>
+            Already have an account?
+          </span>
+
           <Link
             to="/login"
-            className="text-blue-600 hover:underline ml-1 font-medium"
+            className="ml-1 font-medium underline-offset-2 custom-link"
           >
             Login
           </Link>
