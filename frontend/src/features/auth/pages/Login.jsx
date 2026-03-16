@@ -1,6 +1,5 @@
 import React, { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { useTheme } from "../../../theme/ThemeContext"
 import ThemeToggleButton from "../../../theme/ThemeToggleButton"
 import { useAuth } from "../hooks/useAuth"
 import { useSelector } from "react-redux"
@@ -10,7 +9,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
   const { handleLogin } = useAuth()
   const navigate = useNavigate()
-  const { theme } = useTheme()
+
   const error = useSelector((state) => state.auth.error)
   const loading = useSelector((state) => state.auth.loading)
 

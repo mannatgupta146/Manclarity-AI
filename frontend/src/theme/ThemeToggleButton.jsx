@@ -1,11 +1,13 @@
 import React from "react"
-import { useTheme } from "./ThemeContext"
+import { useSelector, useDispatch } from "react-redux"
+import { toggleTheme } from "./theme.slice"
 
 const ThemeToggleButton = () => {
-  const { theme, toggleTheme } = useTheme()
+  const theme = useSelector((state) => state.theme.theme)
+  const dispatch = useDispatch()
   return (
     <button
-      onClick={toggleTheme}
+      onClick={() => dispatch(toggleTheme())}
       className="absolute top-4 right-4 p-2 rounded-full shadow transition-colors duration-200"
       style={{
         background:
