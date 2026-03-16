@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 import ThemeToggleButton from "../../../theme/ThemeToggleButton"
 import { useAuth } from "../hooks/useAuth"
 import { useSelector } from "react-redux"
+import { Navigate } from "react-router-dom"
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" })
@@ -10,6 +11,7 @@ const Login = () => {
   const { handleLogin } = useAuth()
   const navigate = useNavigate()
 
+  const user = useSelector((state) => state.auth.user)
   const error = useSelector((state) => state.auth.error)
   const loading = useSelector((state) => state.auth.loading)
 
@@ -23,6 +25,10 @@ const Login = () => {
     e.preventDefault()
     await handleLogin(form)
     navigate("/")
+  }
+
+  if(!loading && user) {
+    return <Navigate to="/" replace />
   }
 
   return (
