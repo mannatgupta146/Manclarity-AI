@@ -1,22 +1,30 @@
-import React from "react"
-import { useRegisterForm } from "../hooks/useAuthForms"
-import { Link } from "react-router-dom"
+import React, { useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
 import { useTheme } from "../../../theme/ThemeContext"
 import ThemeToggleButton from "../../../theme/ThemeToggleButton"
+import { useAuth } from "../hooks/useAuth.js"
+import { useSelector } from "react-redux"
 
 const Register = () => {
-  const {
-    form,
-    handleChange,
-    handleSubmit,
-    loading,
-    showPassword,
-    togglePassword,
-    error,
-    setError,
-  } = useRegisterForm()
-
+  const [form, setForm] = useState({ username: "", email: "", password: "" })
+  const [showPassword, setShowPassword] = useState(false)
+  const { handleRegister } = useAuth()
+  const navigate = useNavigate()
   const { theme } = useTheme()
+  const error = useSelector((state) => state.auth.error)
+  const loading = useSelector((state) => state.auth.loading)
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value })
+  }
+
+  const togglePassword = () => setShowPassword((prev) => !prev)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    await handleRegister(form)
+    navigate("/")
+  }
 
   return (
     <div
