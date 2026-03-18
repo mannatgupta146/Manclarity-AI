@@ -24,3 +24,9 @@ export const logoutApi = async () => {
   const res = await api.post("/logout")
   return res.data
 }
+
+// Email verification API
+export const verifyEmailApi = async (token) => {
+  const res = await api.get(`/verify-email?token=${token}`)
+  return res.data
+}

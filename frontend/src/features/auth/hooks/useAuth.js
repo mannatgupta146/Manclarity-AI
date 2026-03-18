@@ -1,5 +1,16 @@
-import { getMeApi, loginApi, registerApi } from "../services/auth.api"
-import { setUser, setLoading, setError } from "../auth.slice"
+import {
+  getMeApi,
+  loginApi,
+  registerApi,
+  verifyEmailApi,
+} from "../services/auth.api"
+import {
+  setUser,
+  setLoading,
+  setError,
+  setVerifyStatus,
+  setVerifyMessage,
+} from "../auth.slice"
 import { useDispatch } from "react-redux"
 
 export function useAuth() {
@@ -44,5 +55,23 @@ export function useAuth() {
     }
   }
 
-  return { handleRegister, handleLogin, handleGetMe }
+  // Email verification handler
+  const handleVerifyEmail = async (token) => {
+    try {
+      dispatch(setVerifyStatus("pending"))
+      const data = await verifyEmailApi(token)
+      dispatch(setVerifyStatus("success"))
+      dispatch(setVerifyMessage(data.message || "Email verified successfully."))
+    } catch (error) {
+      dispatch(setVerifyStatus("error"))
+      dispatch(
+        setVerifyMessage(
+          error.response?.data?.message ||
+            "Verification failed. Please try again later.",
+        ),
+      )
+    }
+  }
+
+  return { handleRegister, handleLogin, handleGetMe, handleVerifyEmail }
 }

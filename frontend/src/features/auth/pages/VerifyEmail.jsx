@@ -1,35 +1,23 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
 import { useSearchParams, Link } from "react-router-dom"
+import { useSelector } from "react-redux"
+import { useAuth } from "../hooks/useAuth"
 
 const VerifyEmail = () => {
   const [searchParams] = useSearchParams()
-  const [status, setStatus] = useState("pending")
-  const [message, setMessage] = useState("")
+  const { handleVerifyEmail } = useAuth()
+  const verifyStatus = useSelector((state) => state.auth.verifyStatus)
+  const verifyMessage = useSelector((state) => state.auth.verifyMessage)
 
   useEffect(() => {
     const token = searchParams.get("token")
     if (!token) {
-      setStatus("error")
-      setMessage("No verification token provided.")
+      // Set error state in Redux
+      handleVerifyEmail(null)
       return
     }
-    setStatus("pending")
-    fetch(`http://localhost:3000/api/auth/verify-email?token=${token}`)
-      .then(async (res) => {
-        const text = await res.text()
-        if (res.ok) {
-          setStatus("success")
-          setMessage(text)
-        } else {
-          setStatus("error")
-          setMessage(text)
-        }
-      })
-      .catch((err) => {
-        setStatus("error")
-        setMessage("Verification failed. Please try again later.")
-      })
-  }, [searchParams])
+    handleVerifyEmail(token)
+  }, [searchParams, handleVerifyEmail])
 
   return (
     <div
@@ -49,15 +37,15 @@ const VerifyEmail = () => {
         >
           Email Verification
         </h2>
-        {status === "pending" && (
+        {verifyStatus === "pending" && (
           <p style={{ color: "var(--color-secondary)" }}>
             Verifying your email...
           </p>
         )}
-        {status !== "pending" && (
+        {verifyStatus !== "pending" && (
           <div
             className="prose"
-            dangerouslySetInnerHTML={{ __html: message }}
+            dangerouslySetInnerHTML={{ __html: verifyMessage }}
           />
         )}
         <div className="mt-6 text-center">
