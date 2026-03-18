@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser"
 import cors from "cors"
 import authRouter from "./routes/auth.route.js"
 import morgan from "morgan"
+import chatRouter from "./routes/chat.routes.js"
 
 const app = express()
 
@@ -21,6 +22,7 @@ app.use(morgan("dev"))
 
 // Routes
 app.use("/api/auth", authRouter)
+app.use("/api/chat", chatRouter)
 
 app.get("/", (req, res) => {
   res.send("Welcome to the Manclarity AI API")
