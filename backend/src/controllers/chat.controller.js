@@ -1,4 +1,4 @@
-import { generateChatTitle, generateResponse } from "../services/ai.service";
+import { generateChatTitle, generateResponse } from "../services/ai.service.js";
 
 export async function sendMessage(req, res) {
     const { message } = req.body;
