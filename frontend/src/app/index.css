@@ -1,3 +1,48 @@
+/* Responsive styles for dashboard */
+@media (max-width: 900px) {
+  .dashboard-sidebar {
+    width: 80px !important;
+    min-width: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .dashboard-sidebar span,
+  .dashboard-sidebar input,
+  .dashboard-sidebar button,
+  .dashboard-sidebar div[style*="display: flex"] > span {
+    font-size: 0.9rem !important;
+  }
+  .dashboard-main {
+    padding-left: 0 !important;
+  }
+}
+@media (max-width: 600px) {
+  .dashboard-sidebar {
+    display: none !important;
+  }
+  .dashboard-main {
+    padding: 0 !important;
+  }
+}
+/* Chat-specific theme variables */
+:root {
+  --color-chat-search-bg: #fff;
+  --color-chat-search-text: #222;
+  --color-chat-item-bg: #f3f4f6;
+  --color-chat-item-text: #1f2937;
+  --color-chat-input-bg: #fff;
+  --color-chat-input-text: #1f2937;
+  --color-chat-user-text: #222;
+}
+.dark {
+  --color-chat-search-bg: #232323;
+  --color-chat-search-text: #fff;
+  --color-chat-item-bg: #18181b;
+  --color-chat-item-text: #fff;
+  --color-chat-input-bg: #232323;
+  --color-chat-input-text: #fff;
+  --color-chat-user-text: #fff;
+}
 @import "tailwindcss";
 
 /* Light Theme */
