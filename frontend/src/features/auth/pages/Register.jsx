@@ -43,12 +43,6 @@ const Register = () => {
           borderColor: "var(--color-border)",
         }}
       >
-        {/* Error Message */}
-        {error && (
-          <div className="mb-4 text-red-500 text-center text-sm font-medium">
-            {error}
-          </div>
-        )}
         <div className="mb-6 text-center flex flex-col items-center">
           <img
             src="/brand.png"
@@ -62,9 +56,18 @@ const Register = () => {
           >
             Create Account
           </h2>
-          <p className="text-sm" style={{ color: "var(--color-secondary)" }}>
+          <p
+            className="text-sm mb-2"
+            style={{ color: "var(--color-secondary)" }}
+          >
             Welcome! Please fill in your details to register.
           </p>
+          {/* Error Message (below welcome) */}
+          {error && (
+            <div className="mb-1 mt-3 text-red-500 text-center text-sm font-medium">
+              {error}
+            </div>
+          )}
         </div>
         {/* Username */}
         <div className="mb-4">
