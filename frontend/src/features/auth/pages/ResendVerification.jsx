@@ -114,77 +114,26 @@ const ResendVerification = () => {
 
   if (alreadyVerified) {
     return (
-      <div
-        className="flex items-center justify-center min-h-screen"
-        style={{ background: "var(--color-bg)" }}
-      >
+      <div className="flex items-center justify-center min-h-screen bg-(--color-bg)">
         <ThemeToggleButton />
-        <div
-          className="p-7 rounded-3xl w-full max-w-105 border flex flex-col items-center justify-center shadow-lg"
-          style={{
-            background: "var(--color-card)",
-            borderColor: "var(--color-border)",
-            minHeight: 0,
-            boxShadow: "0 6px 32px 0 rgba(0,0,0,0.13)",
-          }}
-        >
+        <div className="p-7 rounded-3xl w-full max-w-105 border flex flex-col items-center justify-center bg-(--color-card)] border-(--color-border)] min-h-0 shadow-[0_6px_32px_0_rgba(0,0,0,0.13)]">
           <img
             src="/brand.png"
             alt="Manclarity AI Logo"
-            style={{
-              width: 64,
-              height: 64,
-              marginBottom: 18,
-              marginTop: 6,
-              filter: "drop-shadow(0 2px 8px #f59e0b33)",
-            }}
-            className="mx-auto"
+            className="mx-auto w-16 h-16 mb-4.5 mt-1.5 filter-[drop-shadow(0_2px_8px_#f59e0b33)]"
           />
-          <h2
-            className="text-4xl font-extrabold mb-3 text-center tracking-tight"
-            style={{
-              color: "var(--color-accent)",
-              letterSpacing: 0.5,
-              lineHeight: 1.08,
-              fontWeight: 800,
-            }}
-          >
+          <h2 className="text-4xl font-extrabold mb-3 text-center tracking-tight text-(--color-accent)] letter-spacing:0.5px line-height:1.08">
             Email Already Verified
           </h2>
           <div className="mb-4 w-full flex flex-col items-center gap-2">
-            <div
-              style={{
-                color: "var(--color-info-text, #222)",
-                fontWeight: 500,
-                fontSize: 18,
-                textAlign: "center",
-                marginBottom: 10,
-                lineHeight: 1.7,
-                letterSpacing: 0.01,
-                opacity: 0.92,
-              }}
-            >
+            <div className="text-(--color-info-text,#222)] font-medium text-[18px] text-center mb-2.5line-height:1.7 letter-spacing:0.01em opacity-92">
               Your email is already verified.
               <br />
               You can now log in to your account.
             </div>
             <Link
               to="/login"
-              className="font-semibold"
-              style={{
-                color: "var(--color-accent)",
-                fontSize: 18,
-                marginTop: 18,
-                display: "inline-block",
-                fontWeight: 700,
-                letterSpacing: 0.2,
-                textDecoration: "none",
-                borderRadius: 6,
-                padding: "0 2px",
-                background: "none",
-                boxShadow: "none",
-                transition: "color 0.18s",
-              }}
+              className="font-semibold text-(--color-accent)] text-[18px] mt-4.5 inline-block letter-spacing:0.2px no-underline rounded-md px-1 bg-none shadow-none transition-colors duration-200"
             >
               Go to Login
             </Link>
@@ -195,137 +144,49 @@ const ResendVerification = () => {
   }
 
   return (
-    <div
-      className="flex items-center justify-center min-h-screen"
-      style={{ background: "var(--color-bg)" }}
-    >
+    <div className="flex items-center justify-center min-h-screen bg-(--color-bg)]">
       <ThemeToggleButton />
-      <div
-        className="p-5 rounded-3xl w-full max-w-105 border"
-        style={{
-          background: "var(--color-card)",
-          borderColor: "var(--color-border)",
-          minHeight: 0,
-          boxShadow: "0 4px 24px 0 rgba(0,0,0,0.08)",
-        }}
-      >
+      <div className="p-5 rounded-3xl w-full max-w-105 border bg-(--color-card)] border-(--color-border)] min-h-0 shadow-[0_4px_24px_0_rgba(0,0,0,0.08)]">
         <div className="mb-6 text-center flex flex-col items-center">
           <img
             src="/brand.png"
             alt="Manclarity AI Logo"
-            style={{ width: 48, height: 48 }}
-            className="mb-5 mx-auto"
+            className="mb-5 mx-auto w-12 h-12"
           />
-          <h2
-            className="text-4xl font-bold mb-4 text-center tracking-tight"
-            style={{
-              color: "var(--color-accent)",
-              letterSpacing: 0.5,
-              lineHeight: 1.08,
-              fontWeight: 700,
-            }}
-          >
+          <h2 className="text-4xl mb-4 text-center tracking-tight text-(--color-accent)] letter-spacing:0.5px line-height:1.08 font-bold">
             Verify Your Email
           </h2>
           <div className="mb-4 w-full flex flex-col items-center gap-2">
-            <div
-              style={{
-                width: "100%",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                marginBottom: 2,
-              }}
-            >
-              <span
-                style={{
-                  fontSize: 18,
-                  textAlign: "center",
-                  letterSpacing: 0.2,
-                  marginBottom: 6,
-                  display: "block",
-                  fontWeight: 600,
-                  color: "var(--color-info-text, #222)",
-                }}
-              >
+            <div className="w-full flex flex-col items-center mb-1">
+              <span className="text-[18px] text-center letter-spacing:0.2px mb-1.5 block font-semibold text-(--color-info-text,#222)]">
                 Verification email sent to{" "}
-                <span
-                  style={{
-                    color: "var(--color-accent, #fbbf24)",
-                    fontWeight: 700,
-                  }}
-                >
+                <span className="text-(--color-accent,#fbbf24)] font-bold">
                   {email}
                 </span>
                 .
               </span>
               <div
+                className="w-10 h-1 rounded-md mx-auto mb-2.5 opacity-70"
                 style={{
-                  width: 40,
-                  height: 3,
                   background:
                     "linear-gradient(90deg, var(--color-accent) 60%, transparent)",
-                  borderRadius: 2,
-                  margin: "0 auto 10px auto",
-                  opacity: 0.7,
                 }}
               />
-              <span
-                style={{
-                  color: "var(--color-info-text, #222)",
-                  fontWeight: 500,
-                  fontSize: 16,
-                  textAlign: "center",
-                  display: "block",
-                  marginTop: 2,
-                  opacity: 0.85,
-                  lineHeight: 1.7,
-                  letterSpacing: 0.01,
-                }}
-              >
+              <span className="text-(--color-info-text,#222)] font-medium text-[16px] text-center block mt-1 opacity-85 line-height:1.7 letter-spacing:0.01em">
                 Please check your inbox and follow the instructions to verify
                 your account.
               </span>
             </div>
-            <div
-              className="flex items-center justify-center mt-1"
-              style={{ width: "100%" }}
-            >
-              <div
-                style={{
-                  background: "var(--color-warning-bg, #fffbe6)",
-                  color: "var(--color-warning-text, #b45309)",
-                  fontSize: 15,
-                  fontWeight: 700,
-                  borderRadius: 10,
-                  padding: "10px 18px",
-                  maxWidth: 440,
-                  textAlign: "center",
-                  // boxShadow: "0 4px 16px #fde68a33",
-                  display: "inline-block",
-                  marginTop: 2,
-                  border: "1.5px solid var(--color-warning-border, #fde68a)",
-                  letterSpacing: 0.1,
-                  opacity: 0.97,
-                }}
-              >
+            <div className="flex items-center justify-center mt-1 w-full">
+              <div className="inline-block mt-1 max-w-110 rounded-[10px] px-4.5 py-2.5 font-bold text-[15px] text-(--color-warning-text,#b45309)] bg-(--color-warning-bg,#fffbe6)] border-[1.5px] border-(--color-warning-border,#fde68a) letter-spacing:0.1em opacity-97 text-center">
                 <span
                   role="img"
                   aria-label="warning"
-                  style={{
-                    fontSize: 18,
-                    verticalAlign: "middle",
-                    marginRight: 7,
-                  }}
+                  className="text-[18px] align-middle mr-2"
                 >
                   ⚠️
                 </span>
-                <span
-                  style={{
-                    color: "var(--color-warning-text, #b45309)",
-                    fontWeight: 800,
-                  }}
-                >
+                <span className="text-(--color-warning-text,#b45309)] font-extrabold">
                   Don't reload this page or the timer will reset.
                 </span>
               </div>
@@ -335,19 +196,7 @@ const ResendVerification = () => {
         <div className="mt-6 text-center">
           {resent ? (
             <div className="flex flex-col items-center mb-6">
-              <div
-                style={{
-                  background: "var(--color-accent)",
-                  borderRadius: "50%",
-                  width: 70,
-                  height: 70,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: 18,
-                  boxShadow: "0 2px 8px #f59e0b33",
-                }}
-              >
+              <div className="flex items-center justify-center mb-4.5 w-18 h-18 rounded-full bg-(--color-accent)] [box-shadow:0_2px_8px_#f59e0b33]">
                 <svg
                   width="40"
                   height="40"
@@ -361,46 +210,19 @@ const ResendVerification = () => {
                   <polyline points="20 6 10.8 17 4 11.2"></polyline>
                 </svg>
               </div>
-              <div
-                style={{
-                  color: "var(--color-primary)",
-                  fontSize: 16,
-                  fontWeight: 700,
-                  marginBottom: 6,
-                }}
-              >
+              <div className="text-(--color-primary)] text-[16px] font-bold mb-1.5">
                 Verification email resent!
               </div>
-              <div style={{ color: "var(--color-secondary)", fontSize: 13 }}>
+              <div className="text-(--color-secondary)] text-[13px]">
                 Please check your inbox.
               </div>
             </div>
           ) : error ? (
-            <div
-              className="text-base font-semibold mb-4"
-              style={{
-                fontSize: 16,
-                color: "var(--color-error-text, #b91c1c)",
-                background: "var(--color-error-bg, #fef2f2)",
-                borderRadius: 12,
-                padding: "13px 20px",
-                margin: "0 auto",
-                maxWidth: 440,
-                marginBottom: 12,
-                border: "1.5px solid var(--color-error-border, #fecaca)",
-                // boxShadow: "0 6px 18px #fecaca33",
-                letterSpacing: 0.1,
-                opacity: 0.98,
-              }}
-            >
+            <div className="text-base font-semibold mb-4 text-[16px] text-(--color-error-text,#b91c1c) bg-(--color-error-bg,#fef2f2)] rounded-xl px-5 py-3 mx-auto max-w-110 border-[1.5px] border-(--color-error-border,#fecaca) letter-spacing:0.1em opacity-98">
               <span
                 role="img"
                 aria-label="error"
-                style={{
-                  fontSize: 18,
-                  verticalAlign: "middle",
-                  marginRight: 7,
-                }}
+                className="text-[18px] align-middle mr-2"
               >
                 ❌
               </span>
@@ -410,19 +232,14 @@ const ResendVerification = () => {
             <form onSubmit={handleResend}>
               <button
                 type="submit"
-                className="py-2 px-6 rounded font-bold transition hover:brightness-110 active:scale-95"
-                style={{
-                  background: "var(--color-accent)",
-                  color: "#fff",
-                  fontSize: 16,
-                }}
+                className="py-2 px-6 rounded font-bold transition hover:brightness-110 active:scale-95 bg-(--color-accent)] text-white text-[16px]"
                 disabled={hasResent && timer > 0}
               >
                 Resend Verification Email
               </button>
             </form>
           ) : (
-            <div className="text-base text-gray-500" style={{ fontSize: 15 }}>
+            <div className="text-base text-gray-500 text-[15px]">
               You can resend in {formatTimer(timer)}
             </div>
           )}
@@ -430,15 +247,7 @@ const ResendVerification = () => {
         <div className="mt-6 text-center">
           <Link
             to="/login"
-            className="font-semibold underline-offset-2"
-            style={{
-              color: "var(--color-accent)",
-              fontSize: 16,
-              marginTop: 8,
-              display: "inline-block",
-              fontWeight: 700,
-              letterSpacing: 0.2,
-            }}
+            className="font-semibold underline-offset-2 text-(--color-accent)] text-[16px] mt-2 inline-block letter-spacing:0.2px"
           >
             Back to Login
           </Link>
