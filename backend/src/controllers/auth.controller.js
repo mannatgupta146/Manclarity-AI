@@ -213,14 +213,14 @@ export async function resendVerificationEmail(req, res) {
       })
     }
     // 5 min cooldown logic: allow first resend immediately after registration
-    const now = Date.now();
+    const now = Date.now()
     // If cooldown has passed, reset attempts
     if (
       user.lastResend &&
       now - new Date(user.lastResend).getTime() >= 5 * 60 * 1000
     ) {
-      user.resendAttempts = 0;
-      await user.save();
+      user.resendAttempts = 0
+      await user.save()
     }
     // Only enforce cooldown if at least one resend has already happened
     if (user.resendAttempts >= 1) {
@@ -228,19 +228,19 @@ export async function resendVerificationEmail(req, res) {
         user.lastResend &&
         now - new Date(user.lastResend).getTime() < 5 * 60 * 1000
       ) {
-        const wait = 5 * 60 * 1000 - (now - new Date(user.lastResend).getTime());
-        const min = Math.floor(wait / 60000);
-        const sec = Math.floor((wait % 60000) / 1000);
+        const wait = 5 * 60 * 1000 - (now - new Date(user.lastResend).getTime())
+        const min = Math.floor(wait / 60000)
+        const sec = Math.floor((wait % 60000) / 1000)
         return res.status(429).json({
           message: `Please wait ${min}:${sec.toString().padStart(2, "0")} before resending.`,
           success: false,
-        });
+        })
       }
       // If cooldown passed, allow resend and increment attempts
     }
-    user.lastResend = new Date();
-    user.resendAttempts = (user.resendAttempts || 0) + 1;
-    await user.save();
+    user.lastResend = new Date()
+    user.resendAttempts = (user.resendAttempts || 0) + 1
+    await user.save()
     const emailVerificationToken = jwt.sign(
       {
         email: user.email,
