@@ -30,3 +30,17 @@ export const verifyEmailApi = async (token) => {
   const res = await api.get(`/verify-email?token=${token}`)
   return res.data
 }
+
+// Resend verification email API
+export const resendVerificationEmailApi = async (email) => {
+  const res = await api.post("/resend-verification", { email })
+  return res.data
+}
+
+// Get current resend attempts for a user
+export const getResendAttemptsApi = async (email) => {
+  const res = await api.get(
+    `/resend-attempts?email=${encodeURIComponent(email)}`,
+  )
+  return res.data
+}

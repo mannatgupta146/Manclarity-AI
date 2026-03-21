@@ -4,6 +4,7 @@ import {
   registerApi,
   verifyEmailApi,
 } from "../services/auth.api"
+import { resendVerificationEmailApi } from "../services/auth.api"
 import {
   setUser,
   setLoading,
@@ -20,8 +21,18 @@ export function useAuth() {
     try {
       dispatch(setLoading(true))
       const data = await registerApi(username, email, password)
+      if (
+        data &&
+        data.success === false &&
+        data.message === "User already exists"
+      ) {
+        dispatch(setError(data.message))
+        return false
+      }
+      return data
     } catch (error) {
       dispatch(setError(error.response?.data?.message || "Registration failed"))
+      return false
     } finally {
       dispatch(setLoading(false))
     }
@@ -73,5 +84,29 @@ export function useAuth() {
     }
   }
 
-  return { handleRegister, handleLogin, handleGetMe, handleVerifyEmail }
+  // Resend verification email handler
+  const handleResendVerificationEmail = async (email) => {
+    try {
+      dispatch(setVerifyStatus("pending"))
+      const data = await resendVerificationEmailApi(email)
+      dispatch(setVerifyStatus("success"))
+      dispatch(setVerifyMessage(data.message || "Verification email resent."))
+      return data
+    } catch (error) {
+      dispatch(setVerifyStatus("error"))
+      const msg =
+        error.response?.data?.message ||
+        "Resend failed. Please try again later."
+      dispatch(setVerifyMessage(msg))
+      return { success: false, message: msg }
+    }
+  }
+
+  return {
+    handleRegister,
+    handleLogin,
+    handleGetMe,
+    handleVerifyEmail,
+    handleResendVerificationEmail,
+  }
 }

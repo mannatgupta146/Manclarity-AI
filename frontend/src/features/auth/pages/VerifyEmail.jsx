@@ -12,7 +12,6 @@ const VerifyEmail = () => {
   useEffect(() => {
     const token = searchParams.get("token")
     if (!token) {
-      // Set error state in Redux
       handleVerifyEmail(null)
       return
     }

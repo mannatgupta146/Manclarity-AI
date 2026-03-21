@@ -25,6 +25,14 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    lastResend: {
+      type: Date,
+      default: null,
+    },
+    resendAttempts: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

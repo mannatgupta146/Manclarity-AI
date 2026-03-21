@@ -4,12 +4,14 @@ import ThemeToggleButton from "../../../theme/ThemeToggleButton"
 import { useAuth } from "../hooks/useAuth.js"
 import { useSelector } from "react-redux"
 
+// Resend logic moved to ResendVerification page
+
 const Register = () => {
   const [form, setForm] = useState({ username: "", email: "", password: "" })
   const [showPassword, setShowPassword] = useState(false)
   const { handleRegister } = useAuth()
   const navigate = useNavigate()
- 
+
   const error = useSelector((state) => state.auth.error)
   const loading = useSelector((state) => state.auth.loading)
 
@@ -21,8 +23,10 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    await handleRegister(form)
-    navigate("/")
+    const result = await handleRegister(form)
+    if (result !== false) {
+      navigate("/resend-verification", { state: { email: form.email } })
+    }
   }
 
   return (
@@ -31,7 +35,6 @@ const Register = () => {
       style={{ background: "var(--color-bg)" }}
     >
       <ThemeToggleButton />
-
       <form
         onSubmit={handleSubmit}
         className="p-8 rounded-3xl shadow-lg w-full max-w-105 border"
@@ -63,7 +66,6 @@ const Register = () => {
             Welcome! Please fill in your details to register.
           </p>
         </div>
-
         {/* Username */}
         <div className="mb-4">
           <label
@@ -73,7 +75,6 @@ const Register = () => {
           >
             Username
           </label>
-
           <input
             id="register-username"
             type="text"
@@ -91,7 +92,6 @@ const Register = () => {
             placeholder="Enter your username"
           />
         </div>
-
         {/* Email */}
         <div className="mb-4">
           <label
@@ -101,7 +101,6 @@ const Register = () => {
           >
             Email Address
           </label>
-
           <input
             id="register-email"
             type="email"
@@ -119,7 +118,6 @@ const Register = () => {
             placeholder="Enter your email"
           />
         </div>
-
         {/* Password */}
         <div className="mb-6 relative">
           <label
@@ -129,7 +127,6 @@ const Register = () => {
           >
             Password
           </label>
-
           <input
             id="register-password"
             type={showPassword ? "text" : "password"}
@@ -146,7 +143,6 @@ const Register = () => {
             required
             placeholder="Create a password"
           />
-
           <button
             type="button"
             onClick={togglePassword}
@@ -199,26 +195,21 @@ const Register = () => {
             )}
           </button>
         </div>
-
         {/* Submit */}
         <button
           type="submit"
           className="w-full py-2 rounded font-semibold transition hover:brightness-110 active:scale-95"
-          style={{
-            background: "var(--color-accent)",
-            color: "#fff",
-          }}
+          style={{ background: "var(--color-accent)", color: "#fff" }}
           disabled={loading}
         >
           {loading ? "Registering..." : "Register"}
         </button>
-
+        {/* ...resend verification logic moved to new page... */}
         {/* Login */}
         <div className="mt-6 text-center">
           <span style={{ color: "var(--color-secondary)" }}>
             Already have an account?
           </span>
-
           <Link
             to="/login"
             className="ml-1 font-medium underline-offset-2 custom-link"
