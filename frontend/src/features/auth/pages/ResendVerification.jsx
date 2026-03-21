@@ -11,7 +11,8 @@ const MAX_RESEND_ATTEMPTS = 1
 const ResendVerification = () => {
   const [timer, setTimer] = useState(RESEND_TIMER)
   const [resent, setResent] = useState(false)
-  const [showResend, setShowResend] = useState(false)
+  const [showResend, setShowResend] = useState(true)
+  const [hasResent, setHasResent] = useState(false)
   // Use backend value for resend attempts
   const [resendCount, setResendCount] = useState(null)
   const [error, setError] = useState("")
@@ -45,13 +46,15 @@ const ResendVerification = () => {
 
   // Timer countdown
   useEffect(() => {
-    if (!showResend && timer > 0) {
-      const interval = setInterval(() => setTimer((t) => t - 1), 1000)
-      return () => clearInterval(interval)
-    } else if (timer <= 0) {
-      setShowResend(true)
+    if (hasResent) {
+      if (!showResend && timer > 0) {
+        const interval = setInterval(() => setTimer((t) => t - 1), 1000)
+        return () => clearInterval(interval)
+      } else if (timer <= 0) {
+        setShowResend(true)
+      }
     }
-  }, [timer, showResend])
+  }, [timer, showResend, hasResent])
 
   // Resend handler
   const handleResend = async (e) => {
@@ -61,6 +64,7 @@ const ResendVerification = () => {
     try {
       await handleResendVerificationEmail(email)
       setResent(true)
+      setHasResent(true)
       setTimer(RESEND_TIMER)
       setShowResend(false)
       // After resend, fetch updated count from backend
@@ -300,7 +304,7 @@ const ResendVerification = () => {
                   color: "#fff",
                   fontSize: 16,
                 }}
-                disabled={timer > 0}
+                disabled={hasResent && timer > 0}
               >
                 Resend Verification Email
               </button>
