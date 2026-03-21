@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { useSearchParams, Link } from "react-router-dom"
 import { useSelector } from "react-redux"
 import { useAuth } from "../hooks/useAuth"
@@ -6,50 +6,62 @@ import ThemeToggleButton from "../../../theme/ThemeToggleButton"
 
 const VerifyEmail = () => {
   const [searchParams] = useSearchParams()
+  const [verifiedEmail, setVerifiedEmail] = useState("")
   const { handleVerifyEmail } = useAuth()
   const verifyStatus = useSelector((state) => state.auth.verifyStatus)
   const verifyMessage = useSelector((state) => state.auth.verifyMessage)
 
-  // Detect if the backend message is 'already verified'
   const alreadyVerified =
     verifyStatus === "error" &&
     verifyMessage &&
     verifyMessage.toLowerCase().includes("already verified")
 
-  // Prevent repeated API calls for the same token
   const attemptedToken = useRef(null)
+
   useEffect(() => {
     const token = searchParams.get("token")
+
     if (!token) {
       handleVerifyEmail(null)
       attemptedToken.current = null
       return
     }
+
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]))
+      if (payload.email) setVerifiedEmail(payload.email)
+    } catch {
+      setVerifiedEmail("")
+    }
+
     if (attemptedToken.current === token) return
+
     attemptedToken.current = token
     handleVerifyEmail(token)
   }, [searchParams, handleVerifyEmail])
 
   return (
     <div
-      className="flex flex-col items-center justify-center min-h-screen relative"
+      className="flex flex-col items-center justify-center min-h-screen relative px-4"
       style={{ background: "var(--color-bg)" }}
     >
       <ThemeToggleButton />
+
       <div
-        className="p-10 rounded-3xl w-full max-w-lg border flex flex-col items-center"
+        className="p-10 rounded-3xl w-full max-w-lg border flex flex-col items-center text-center"
         style={{
           background: "var(--color-card)",
           borderColor: "var(--color-border)",
-          boxShadow: "0 4px 24px 0 rgba(0,0,0,0.08)",
+          boxShadow: "0 6px 24px rgba(0,0,0,0.07)",
         }}
       >
+        {/* TITLE */}
         <h2
-          className="text-2xl font-extrabold text-center"
+          className="text-2xl font-extrabold"
           style={{
             color: "var(--color-accent)",
-            letterSpacing: 0.2,
-            marginBottom: verifyStatus === "error" ? 8 : 16,
+            letterSpacing: 0.3,
+            marginBottom: verifyStatus === "error" ? 12 : 20,
           }}
         >
           {verifyStatus === "success"
@@ -60,40 +72,114 @@ const VerifyEmail = () => {
                 ? "Verification Failed"
                 : "Verify Email"}
         </h2>
+
+        {/* SUCCESS */}
+        {verifyStatus === "success" && (
+          <div className="flex flex-col items-center">
+            <div
+              style={{
+                background: "#fbbf24",
+                borderRadius: "50%",
+                width: 72,
+                height: 72,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: 20,
+                boxShadow: "0 3px 10px #fbbf2430",
+              }}
+            >
+              <svg
+                width="42"
+                height="42"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#fff"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="20 6 10.8 17 4 11.2"></polyline>
+              </svg>
+            </div>
+
+            <div
+              style={{
+                color: "var(--color-accent)",
+                fontWeight: 700,
+                fontSize: 20,
+                marginBottom: 10,
+              }}
+            >
+              Welcome{verifiedEmail ? `, ${verifiedEmail}` : "!"}
+            </div>
+
+            <div
+              style={{
+                color: "var(--color-secondary)",
+                fontSize: 15.5,
+                marginBottom: 14,
+                maxWidth: 420,
+                lineHeight: 1.6,
+              }}
+            >
+              Your email has been successfully verified. You can now log in and
+              enjoy all the features of Manclarity AI.
+            </div>
+
+            <Link
+              to="/login"
+              className="font-semibold underline-offset-2"
+              style={{
+                color: "var(--color-accent)",
+                fontSize: 18,
+                marginTop: 6,
+                display: "inline-block",
+                fontWeight: 700,
+                letterSpacing: 0.2,
+              }}
+            >
+              Go to Login
+            </Link>
+          </div>
+        )}
+
+        {/* ERROR / ALREADY VERIFIED */}
         {(verifyStatus === "error" || alreadyVerified) && (
-          <div className="text-center mt-2 flex flex-col items-center">
+          <div className="flex flex-col items-center mt-2">
+            
+            {/* ICON */}
             <div
               style={{
                 background: "rgba(251,191,36,0.13)",
                 borderRadius: "50%",
-                width: 60,
-                height: 60,
+                width: 64,
+                height: 64,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                margin: "8px 0 18px 0",
-                boxShadow: "0 1px 6px 0 rgba(251,191,36,0.10)",
-                opacity: 1,
+                marginBottom: 18,
               }}
             >
               <span
                 role="img"
                 aria-label="warning"
                 style={{
-                  fontSize: 30,
-                  display: "block",
+                  fontSize: 32,
+                  lineHeight: 1,
                 }}
               >
                 ⚠️
               </span>
             </div>
+
+            {/* MESSAGE */}
             <div
               style={{
                 color: "var(--color-warning-text, #b45309)",
-                fontSize: 19,
+                fontSize: 18.5,
                 fontWeight: 800,
-                marginBottom: 22,
-                textAlign: "center",
+                marginBottom: 18,
                 letterSpacing: 0.2,
               }}
             >
@@ -107,35 +193,23 @@ const VerifyEmail = () => {
                     : verifyMessage ||
                       "Verification failed. Please try again later."}
             </div>
+
+            {/* INFO BOX */}
             <div
               style={{
                 background: "var(--color-warning-info-bg, #fffbe6)",
                 color: "var(--color-warning-info-text, #222)",
-                fontSize: 16,
-                fontWeight: 600,
-                borderRadius: 16,
-                padding: "22px 28px",
-                marginBottom: 28,
-                marginTop: 0,
-                maxWidth: 520,
-                textAlign: "center",
-                boxShadow: "0 1.5px 8px 0 rgba(251,191,36,0.10)",
+                fontSize: 15.5,
+                borderRadius: 14,
+                padding: "18px 22px",
+                marginBottom: 26,
+                maxWidth: 480,
                 border: "1.5px solid var(--color-warning-border, #fde68a)",
-                transition: "background 0.2s, color 0.2s",
+                lineHeight: 1.5,
               }}
             >
-              <span
-                role="img"
-                aria-label="info"
-                style={{
-                  fontSize: 18,
-                  verticalAlign: "middle",
-                  marginRight: 10,
-                }}
-              >
-                ℹ️
-              </span>
-              <span style={{ color: "inherit", fontWeight: 500 }}>
+              <span style={{ marginRight: 6 }}>ℹ️</span>
+              <span>
                 {verifyMessage &&
                 verifyMessage.toLowerCase().includes("expired")
                   ? "Your verification link has expired. Please request a new verification email."
@@ -144,16 +218,17 @@ const VerifyEmail = () => {
                     ? "This verification link is invalid or has already been used. Please request a new one."
                     : alreadyVerified
                       ? "You can now log in and enjoy all the features of Manclarity AI."
-                      : "This may be due to an invalid, broken, or already used verification link, or a server issue. Please check your email for the correct link or contact support if the problem persists."}
+                      : "This may be due to an invalid or already used link. Please try again or contact support."}
               </span>
             </div>
+
             <Link
               to="/login"
               className="font-semibold underline-offset-2"
               style={{
                 color: "var(--color-accent)",
                 fontSize: 18,
-                marginTop: 8,
+                marginTop: 6,
                 display: "inline-block",
                 fontWeight: 700,
                 letterSpacing: 0.2,

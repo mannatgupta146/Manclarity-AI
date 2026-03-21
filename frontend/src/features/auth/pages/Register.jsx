@@ -14,6 +14,7 @@ const Register = () => {
 
   const error = useSelector((state) => state.auth.error)
   const loading = useSelector((state) => state.auth.loading)
+  const [submitted, setSubmitted] = useState(false)
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -23,6 +24,7 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setSubmitted(true)
     const result = await handleRegister(form)
     if (result !== false) {
       navigate("/resend-verification", { state: { email: form.email } })
@@ -63,8 +65,8 @@ const Register = () => {
             Welcome! Please fill in your details to register.
           </p>
           {/* Error Message (below welcome) */}
-          {error && (
-            <div className="mb-1 mt-3 text-red-500 text-center text-sm font-medium">
+          {submitted && error && (
+            <div className="mb-1 mt-3 text-red-500 text-center text-sm font-medium whitespace-pre-line">
               {error}
             </div>
           )}

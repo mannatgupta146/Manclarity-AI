@@ -14,6 +14,7 @@ const Login = () => {
   const user = useSelector((state) => state.auth.user)
   const error = useSelector((state) => state.auth.error)
   const loading = useSelector((state) => state.auth.loading)
+  const [submitted, setSubmitted] = useState(false)
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -23,11 +24,12 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setSubmitted(true)
     await handleLogin(form)
     navigate("/")
   }
 
-  if(!loading && user) {
+  if (!loading && user) {
     return <Navigate to="/" replace />
   }
 
@@ -65,7 +67,7 @@ const Login = () => {
         </div>
 
         {/* Error Message */}
-        {error && (
+        {submitted && error && (
           <div className="mb-4 text-red-500 text-center text-sm font-medium">
             {error}
           </div>

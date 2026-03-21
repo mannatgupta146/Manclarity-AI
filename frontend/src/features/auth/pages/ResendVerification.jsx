@@ -4,9 +4,10 @@ import ThemeToggleButton from "../../../theme/ThemeToggleButton"
 import { useAuth } from "../hooks/useAuth.js"
 import { getResendAttemptsApi } from "../services/auth.api"
 
-const RESEND_TIMER = 120 // 2 minutes
+const RESEND_TIMER = 300 // 5 minutes
 
-const MAX_RESEND_ATTEMPTS = 1 // Only 1 resend allowed
+// Only 1 resend allowed per cooldown, but backend enforces
+const MAX_RESEND_ATTEMPTS = 1
 const ResendVerification = () => {
   const [timer, setTimer] = useState(RESEND_TIMER)
   const [resent, setResent] = useState(false)
@@ -33,14 +34,11 @@ const ResendVerification = () => {
     return `${m}:${s}`
   }
 
-  // Fetch resend attempts on mount
+  // Fetch resend attempts on mount (for info only)
   useEffect(() => {
     if (email) {
       getResendAttemptsApi(email).then((data) => {
         setResendCount(data.resendAttempts ?? 0)
-        if (data.resendAttempts >= MAX_RESEND_ATTEMPTS) {
-          setShowResend(false)
-        }
       })
     }
   }, [email])
@@ -69,19 +67,14 @@ const ResendVerification = () => {
       getResendAttemptsApi(email).then((data) =>
         setResendCount(data.resendAttempts ?? resendCount + 1),
       )
-      // If this was the last allowed attempt, show error after short delay
-      if ((resendCount ?? 0) + 1 >= MAX_RESEND_ATTEMPTS) {
-        setTimeout(() => {
-          setResent(false)
-          setError(
-            "You have reached the maximum number of attempts. Please check your email details carefully and try again after some time.",
-          )
-        }, 1000)
-      } else {
-        setTimeout(() => setResent(false), 2000)
-      }
+      setTimeout(() => setResent(false), 2000)
     } catch (err) {
-      setError("Failed to resend email. Please try again later.")
+      // If backend returns max attempts/cooldown error, show it
+      if (err?.response?.data?.message) {
+        setError(err.response.data.message)
+      } else {
+        setError("Failed to resend email. Please try again later.")
+      }
     }
   }
 
@@ -265,25 +258,6 @@ const ResendVerification = () => {
               <div style={{ color: "var(--color-secondary)", fontSize: 13 }}>
                 Please check your inbox.
               </div>
-            </div>
-          ) : resendCount !== null && resendCount >= MAX_RESEND_ATTEMPTS ? (
-            <div
-              className="text-base font-semibold"
-              style={{
-                fontSize: 16,
-                color: "var(--color-error-text, #b91c1c)",
-                margin: "0 auto 12px auto",
-                maxWidth: 440,
-                textAlign: "center",
-                letterSpacing: 0.1,
-                opacity: 0.98,
-                background: "none",
-                border: "none",
-                padding: 0,
-              }}
-            >
-              You have reached the maximum number of attempts. Please check your
-              email details carefully and try again after some time.
             </div>
           ) : error ? (
             <div

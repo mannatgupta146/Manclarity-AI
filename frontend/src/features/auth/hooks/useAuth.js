@@ -31,7 +31,18 @@ export function useAuth() {
       }
       return data
     } catch (error) {
-      dispatch(setError(error.response?.data?.message || "Registration failed"))
+      // If express-validator errors are present, show all messages
+      if (
+        error.response?.data?.errors &&
+        Array.isArray(error.response.data.errors)
+      ) {
+        const messages = error.response.data.errors.map((e) => e.msg).join("\n")
+        dispatch(setError(messages))
+      } else {
+        dispatch(
+          setError(error.response?.data?.message || "Registration failed"),
+        )
+      }
       return false
     } finally {
       dispatch(setLoading(false))
