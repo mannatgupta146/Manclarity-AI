@@ -145,7 +145,7 @@ const Dashboard = () => {
             {tags.map((tag) => (
               <span
                 key={tag}
-                className="bg-(--color-card) text-(--color-accent) border-[1.5px] border-(--color-accent) rounded-lg p-[7px_18px] font-bold text-[15px] cursor-pointer transition-all duration-150"
+                className="bg-(--color-card) border-[1.5px] border-(--color-border) text-(--color-secondary) dark:border-zinc-700 rounded-lg p-[7px_18px] font-bold text-[15px] cursor-pointer transition-all duration-150"
               >
                 {tag}
               </span>
