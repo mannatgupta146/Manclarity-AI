@@ -57,7 +57,7 @@ const VerifyEmail = () => {
       >
         {/* TITLE */}
         <h2
-          className="text-2xl font-extrabold"
+          className="text-3xl font-extrabold"
           style={{
             color: "var(--color-accent)",
             letterSpacing: 0.3,

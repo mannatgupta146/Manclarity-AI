@@ -16,6 +16,7 @@ const ResendVerification = () => {
   // Use backend value for resend attempts
   const [resendCount, setResendCount] = useState(null)
   const [error, setError] = useState("")
+  const [alreadyVerified, setAlreadyVerified] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
   const { handleResendVerificationEmail } = useAuth()
@@ -35,12 +36,41 @@ const ResendVerification = () => {
     return `${m}:${s}`
   }
 
-  // Fetch resend attempts on mount (for info only)
+  // Fetch resend attempts, cooldown, and verified status on mount
   useEffect(() => {
     if (email) {
-      getResendAttemptsApi(email).then((data) => {
-        setResendCount(data.resendAttempts ?? 0)
-      })
+      fetch(
+        `http://localhost:3000/api/auth/check-verified?email=${encodeURIComponent(email)}`,
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.verified) {
+            setAlreadyVerified(true)
+            return
+          }
+          getResendAttemptsApi(email).then((data) => {
+            setResendCount(data.resendAttempts ?? 0)
+            // If user has already resent and cooldown is active, set timer and hide button
+            if (data.resendAttempts >= 1 && data.lastResend) {
+              const last = new Date(data.lastResend).getTime()
+              const now = Date.now()
+              const elapsed = Math.floor((now - last) / 1000)
+              if (elapsed < RESEND_TIMER) {
+                setTimer(RESEND_TIMER - elapsed)
+                setShowResend(false)
+                setHasResent(true)
+              } else {
+                setShowResend(true)
+                setHasResent(false)
+                setTimer(RESEND_TIMER)
+              }
+            } else {
+              setShowResend(true)
+              setHasResent(false)
+              setTimer(RESEND_TIMER)
+            }
+          })
+        })
     }
   }, [email])
 
@@ -80,6 +110,88 @@ const ResendVerification = () => {
         setError("Failed to resend email. Please try again later.")
       }
     }
+  }
+
+  if (alreadyVerified) {
+    return (
+      <div
+        className="flex items-center justify-center min-h-screen"
+        style={{ background: "var(--color-bg)" }}
+      >
+        <ThemeToggleButton />
+        <div
+          className="p-7 rounded-3xl w-full max-w-105 border flex flex-col items-center justify-center shadow-lg"
+          style={{
+            background: "var(--color-card)",
+            borderColor: "var(--color-border)",
+            minHeight: 0,
+            boxShadow: "0 6px 32px 0 rgba(0,0,0,0.13)",
+          }}
+        >
+          <img
+            src="/brand.png"
+            alt="Manclarity AI Logo"
+            style={{
+              width: 64,
+              height: 64,
+              marginBottom: 18,
+              marginTop: 6,
+              filter: "drop-shadow(0 2px 8px #f59e0b33)",
+            }}
+            className="mx-auto"
+          />
+          <h2
+            className="text-4xl font-extrabold mb-3 text-center tracking-tight"
+            style={{
+              color: "var(--color-accent)",
+              letterSpacing: 0.5,
+              lineHeight: 1.08,
+              fontWeight: 800,
+            }}
+          >
+            Email Already Verified
+          </h2>
+          <div className="mb-4 w-full flex flex-col items-center gap-2">
+            <div
+              style={{
+                color: "var(--color-info-text, #222)",
+                fontWeight: 500,
+                fontSize: 18,
+                textAlign: "center",
+                marginBottom: 10,
+                lineHeight: 1.7,
+                letterSpacing: 0.01,
+                opacity: 0.92,
+              }}
+            >
+              Your email is already verified.
+              <br />
+              You can now log in to your account.
+            </div>
+            <Link
+              to="/login"
+              className="font-semibold"
+              style={{
+                color: "var(--color-accent)",
+                fontSize: 18,
+                marginTop: 18,
+                display: "inline-block",
+                fontWeight: 700,
+                letterSpacing: 0.2,
+                textDecoration: "none",
+                borderRadius: 6,
+                padding: "0 2px",
+                background: "none",
+                boxShadow: "none",
+                transition: "color 0.18s",
+              }}
+            >
+              Go to Login
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

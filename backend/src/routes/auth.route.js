@@ -1,9 +1,5 @@
 import { Router } from "express"
-import {
-  loginValidator,
-  registerValidator,
-  validate,
-} from "../validators/auth.validators.js"
+
 import {
   getMe,
   login,
@@ -11,10 +7,19 @@ import {
   resendVerificationEmail,
   verifyEmail,
   getResendAttempts,
+  checkVerified,
 } from "../controllers/auth.controller.js"
+import {
+  loginValidator,
+  registerValidator,
+  validate,
+} from "../validators/auth.validators.js"
 import { authUser } from "../middlewares/auth.middleware.js"
 
 const authRouter = Router()
+
+// Public endpoint to check if an email is already verified
+authRouter.get("/check-verified", checkVerified)
 
 /**
  * @route POST /api/auth/register

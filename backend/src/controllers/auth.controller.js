@@ -1,3 +1,19 @@
+// Public endpoint to check if an email is already verified
+export async function checkVerified(req, res) {
+  const { email } = req.query
+  if (!email) {
+    return res.status(400).json({ message: "Email required", success: false })
+  }
+  try {
+    const user = await userModel.findOne({ email })
+    if (!user) {
+      return res.status(404).json({ message: "User not found", success: false })
+    }
+    return res.json({ verified: !!user.verified, success: true })
+  } catch (err) {
+    return res.status(500).json({ message: "Server error", success: false })
+  }
+}
 import userModel from "../models/user.model.js"
 import jwt from "jsonwebtoken"
 import { sendEmail } from "../services/mail.service.js"
@@ -189,7 +205,11 @@ export async function getResendAttempts(req, res) {
     if (!user) {
       return res.status(404).json({ message: "User not found", success: false })
     }
-    return res.json({ resendAttempts: user.resendAttempts || 0, success: true })
+    return res.json({
+      resendAttempts: user.resendAttempts || 0,
+      lastResend: user.lastResend || null,
+      success: true,
+    })
   } catch (err) {
     return res.status(500).json({ message: "Server error", success: false })
   }
