@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom"
 import { useChat } from "../hooks/useChat"
 
 const Dashboard = () => {
-  // All hooks must be called at the top, before any logic
   const user = useSelector((state) => state.auth.user)
   const navigate = useNavigate()
   const { initializeSocketConnection } = useChat()
@@ -15,7 +14,6 @@ const Dashboard = () => {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState("")
   const [search, setSearch] = useState("")
-  // Tags for quick actions
   const tags = [
     "Getting Started",
     "Account",
@@ -24,37 +22,26 @@ const Dashboard = () => {
     "Troubleshooting",
     "Feedback",
   ]
-
-  // Redirect to login if not authenticated
   useEffect(() => {
     if (!user) {
       navigate("/login")
     }
   }, [user, navigate])
-
   useEffect(() => {
-    // Example: fetch chats from backend or initialize socket
     initializeSocketConnection()
-    // TODO: fetch chats and setChats([...])
   }, [])
-
   const handleSelectChat = (chat) => {
     setSelectedChat(chat)
-    // TODO: fetch messages for chat
     setMessages([]) // Replace with fetched messages
   }
-
   const handleSend = (e) => {
     e.preventDefault()
     if (!input.trim()) return
-    // TODO: send message to backend/socket
     setMessages((prev) => [...prev, { sender: user?.name, text: input }])
     setInput("")
   }
-
   const handleSearch = (e) => {
     setSearch(e.target.value)
-    // TODO: filter chats based on search
   }
 
   return (
@@ -118,6 +105,8 @@ const Dashboard = () => {
             <input
               type="text"
               placeholder="Search chats..."
+              value={search}
+              onChange={handleSearch}
               style={{
                 width: "100%",
                 padding: "9px 14px",
@@ -132,7 +121,91 @@ const Dashboard = () => {
               }}
             />
           </div>
-          {/* Chat list and add chat button remain unchanged here */}
+          {/* Chat list */}
+          <div
+            style={{ padding: "0 28px 10px 28px", flex: 1, overflowY: "auto" }}
+          >
+            {chats.length === 0 ? (
+              <div
+                style={{
+                  color: "var(--color-secondary)",
+                  textAlign: "center",
+                  marginTop: 20,
+                }}
+              >
+                No chats yet
+              </div>
+            ) : (
+              chats
+                .filter((chat) =>
+                  chat.name.toLowerCase().includes(search.toLowerCase()),
+                )
+                .map((chat) => (
+                  <div
+                    key={chat.id}
+                    onClick={() => handleSelectChat(chat)}
+                    style={{
+                      background:
+                        selectedChat?.id === chat.id
+                          ? "var(--color-accent)"
+                          : "var(--color-chat-item-bg)",
+                      color:
+                        selectedChat?.id === chat.id
+                          ? "#fff"
+                          : "var(--color-chat-item-text)",
+                      borderRadius: 8,
+                      padding: "10px 14px",
+                      marginBottom: 8,
+                      cursor: "pointer",
+                      fontWeight: 600,
+                      fontSize: 15,
+                      border:
+                        selectedChat?.id === chat.id
+                          ? "2px solid var(--color-accent)"
+                          : "1.5px solid var(--color-border)",
+                      transition: "background 0.15s, color 0.15s, border 0.15s",
+                    }}
+                  >
+                    {chat.name}
+                  </div>
+                ))
+            )}
+            {/* Add chat button */}
+            <button
+              onClick={() => {
+                // TODO: Implement add chat logic
+                const newChat = {
+                  id: Date.now(),
+                  name: `New Chat ${chats.length + 1}`,
+                }
+                setChats([...chats, newChat])
+              }}
+              style={{
+                width: "100%",
+                marginTop: 10,
+                padding: "10px 0",
+                borderRadius: 8,
+                background: "var(--color-accent)",
+                color: "#fff",
+                fontWeight: 700,
+                fontSize: 16,
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                boxShadow: "0 2px 8px #f59e0b22",
+                transition: "background 0.15s",
+              }}
+              title="Add Chat"
+            >
+              <span style={{ fontSize: 20, fontWeight: 900, lineHeight: 1 }}>
+                +
+              </span>{" "}
+              Add Chat
+            </button>
+          </div>
         </div>
         {/* Bottom: Theme toggle, user info, logout */}
         <div style={{ padding: "0 28px" }}>
