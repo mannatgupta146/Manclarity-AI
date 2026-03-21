@@ -2,6 +2,17 @@
 
 /* Light Theme */
 :root {
+  --color-warning-info-bg: #fffbe6;
+  --color-warning-info-text: #222;
+  /* Info, Warning, Error boxes (light) */
+  --color-info-bg: #f8fafc;
+  --color-info-text: #222;
+  --color-warning-bg: #fffbe6;
+  --color-warning-text: #b45309;
+  --color-warning-border: #fde68a;
+  --color-error-bg: #fef2f2;
+  --color-error-text: #b91c1c;
+  --color-error-border: #fecaca;
   --color-bg: #fdfdfd;
   --color-card: #ffffff;
   --color-border: #e5e7eb;
@@ -22,13 +33,24 @@
   --color-input-placeholder: #9ca3af;
 
   --color-toggle-bg: #f3f4f6;
-  --color-toggle-text: #F59E0B;
+  --color-toggle-text: #f59e0b;
 
   --color-focus-ring: #fbbf24;
 }
 
 /* Dark Theme */
 .dark {
+  --color-warning-info-bg: #2d2323;
+  --color-warning-info-text: #fbbf24;
+  /* Info, Warning, Error boxes (dark) */
+  --color-info-bg: #23272e;
+  --color-info-text: #f3f4f6;
+  --color-warning-bg: #2d2323;
+  --color-warning-text: #fbbf24;
+  --color-warning-border: #fbbf24;
+  --color-error-bg: #2a1818;
+  --color-error-text: #f87171;
+  --color-error-border: #f87171;
   --color-bg: #111111;
   --color-card: #1a1a1a;
   --color-border: #2a2a2a;
@@ -94,4 +116,3 @@ input:-webkit-autofill:active {
   -webkit-text-fill-color: var(--color-input-text) !important;
   transition: background-color 5000s ease-in-out 0s;
 }
-

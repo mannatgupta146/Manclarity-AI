@@ -24,50 +24,44 @@ const ResendVerification = () => {
     new URLSearchParams(location.search).get("email") ||
     ""
 
-  useEffect(() => {
-    if (!email) {
-      navigate("/register")
-      return
-    }
-    // Fetch resend attempts from backend
-    getResendAttemptsApi(email)
-      .then((data) => {
-        setResendCount(data.resendAttempts ?? 0)
-      })
-      .catch(() => setResendCount(0))
-  }, [email, navigate])
-
-  useEffect(() => {
-    let interval
-    if (timer > 0) {
-      interval = setInterval(() => setTimer((t) => t - 1), 1000)
-    } else {
-      setShowResend(true)
-    }
-    return () => clearInterval(interval)
-  }, [timer])
-
-  const formatTimer = (t) => {
-    const m = String(Math.floor(t / 60)).padStart(2, "0")
-    const s = String(t % 60).padStart(2, "0")
+  // Format timer as mm:ss
+  const formatTimer = (seconds) => {
+    const m = Math.floor(seconds / 60)
+      .toString()
+      .padStart(2, "0")
+    const s = (seconds % 60).toString().padStart(2, "0")
     return `${m}:${s}`
   }
 
+  // Fetch resend attempts on mount
+  useEffect(() => {
+    if (email) {
+      getResendAttemptsApi(email).then((data) => {
+        setResendCount(data.resendAttempts ?? 0)
+        if (data.resendAttempts >= MAX_RESEND_ATTEMPTS) {
+          setShowResend(false)
+        }
+      })
+    }
+  }, [email])
+
+  // Timer countdown
+  useEffect(() => {
+    if (!showResend && timer > 0) {
+      const interval = setInterval(() => setTimer((t) => t - 1), 1000)
+      return () => clearInterval(interval)
+    } else if (timer <= 0) {
+      setShowResend(true)
+    }
+  }, [timer, showResend])
+
+  // Resend handler
   const handleResend = async (e) => {
     e.preventDefault()
-    if (resendCount >= MAX_RESEND_ATTEMPTS) {
-      setError(
-        "You have reached the maximum number of attempts. Please check your email details carefully and try again after some time.",
-      )
-      return
-    }
+    setError("")
+    setResent(false)
     try {
-      const result = await handleResendVerificationEmail(email)
-      // If backend returns error, show it and do not increment count
-      if (result && result.success === false && result.message) {
-        setError(result.message)
-        return
-      }
+      await handleResendVerificationEmail(email)
       setResent(true)
       setTimer(RESEND_TIMER)
       setShowResend(false)
@@ -76,7 +70,7 @@ const ResendVerification = () => {
         setResendCount(data.resendAttempts ?? resendCount + 1),
       )
       // If this was the last allowed attempt, show error after short delay
-      if (resendCount + 1 >= MAX_RESEND_ATTEMPTS) {
+      if ((resendCount ?? 0) + 1 >= MAX_RESEND_ATTEMPTS) {
         setTimeout(() => {
           setResent(false)
           setError(
@@ -98,55 +92,247 @@ const ResendVerification = () => {
     >
       <ThemeToggleButton />
       <div
-        className="p-8 rounded-3xl shadow-lg w-full max-w-105 border"
+        className="p-5 rounded-3xl w-full max-w-105 border"
         style={{
           background: "var(--color-card)",
           borderColor: "var(--color-border)",
+          minHeight: 0,
+          boxShadow: "0 4px 24px 0 rgba(0,0,0,0.08)",
         }}
       >
         <div className="mb-6 text-center flex flex-col items-center">
           <img
             src="/brand.png"
             alt="Manclarity AI Logo"
-            style={{ width: 45, height: 45 }}
-            className="mb-2 mx-auto"
+            style={{ width: 48, height: 48 }}
+            className="mb-5 mx-auto"
           />
           <h2
-            className="text-3xl font-extrabold mb-2"
-            style={{ color: "var(--color-accent)" }}
+            className="text-4xl font-bold mb-4 text-center tracking-tight"
+            style={{
+              color: "var(--color-accent)",
+              letterSpacing: 0.5,
+              lineHeight: 1.08,
+              fontWeight: 700,
+            }}
           >
             Verify Your Email
           </h2>
-          <p className="text-sm" style={{ color: "var(--color-secondary)" }}>
-            An email has been sent to{" "}
-            <span className="font-semibold">{email}</span>.<br />
-            Please check your inbox and follow the instructions to verify your
-            account.
-          </p>
+          <div className="mb-4 w-full flex flex-col items-center gap-2">
+            <div
+              style={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                marginBottom: 2,
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 18,
+                  textAlign: "center",
+                  letterSpacing: 0.2,
+                  marginBottom: 6,
+                  display: "block",
+                  fontWeight: 600,
+                  color: "var(--color-info-text, #222)",
+                }}
+              >
+                Verification email sent to{" "}
+                <span
+                  style={{
+                    color: "var(--color-accent, #fbbf24)",
+                    fontWeight: 700,
+                  }}
+                >
+                  {email}
+                </span>
+                .
+              </span>
+              <div
+                style={{
+                  width: 40,
+                  height: 3,
+                  background:
+                    "linear-gradient(90deg, var(--color-accent) 60%, transparent)",
+                  borderRadius: 2,
+                  margin: "0 auto 10px auto",
+                  opacity: 0.7,
+                }}
+              />
+              <span
+                style={{
+                  color: "var(--color-info-text, #222)",
+                  fontWeight: 500,
+                  fontSize: 16,
+                  textAlign: "center",
+                  display: "block",
+                  marginTop: 2,
+                  opacity: 0.85,
+                  lineHeight: 1.7,
+                  letterSpacing: 0.01,
+                }}
+              >
+                Please check your inbox and follow the instructions to verify
+                your account.
+              </span>
+            </div>
+            <div
+              className="flex items-center justify-center mt-1"
+              style={{ width: "100%" }}
+            >
+              <div
+                style={{
+                  background: "var(--color-warning-bg, #fffbe6)",
+                  color: "var(--color-warning-text, #b45309)",
+                  fontSize: 15,
+                  fontWeight: 700,
+                  borderRadius: 10,
+                  padding: "10px 18px",
+                  maxWidth: 440,
+                  textAlign: "center",
+                  // boxShadow: "0 4px 16px #fde68a33",
+                  display: "inline-block",
+                  marginTop: 2,
+                  border: "1.5px solid var(--color-warning-border, #fde68a)",
+                  letterSpacing: 0.1,
+                  opacity: 0.97,
+                }}
+              >
+                <span
+                  role="img"
+                  aria-label="warning"
+                  style={{
+                    fontSize: 18,
+                    verticalAlign: "middle",
+                    marginRight: 7,
+                  }}
+                >
+                  ⚠️
+                </span>
+                <span
+                  style={{
+                    color: "var(--color-warning-text, #b45309)",
+                    fontWeight: 800,
+                  }}
+                >
+                  Don't reload this page or the timer will reset.
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
         <div className="mt-6 text-center">
-          {error ? (
-            <div className="text-red-500 text-sm font-medium mb-2">{error}</div>
-          ) : showResend ? (
-            resendCount !== null && resendCount < MAX_RESEND_ATTEMPTS ? (
-              <form onSubmit={handleResend}>
-                <button
-                  type="submit"
-                  className="py-2 px-4 rounded font-semibold transition hover:brightness-110 active:scale-95"
-                  style={{ background: "var(--color-accent)", color: "#fff" }}
-                  disabled={timer > 0}
+          {resent ? (
+            <div className="flex flex-col items-center mb-6">
+              <div
+                style={{
+                  background: "var(--color-accent)",
+                  borderRadius: "50%",
+                  width: 70,
+                  height: 70,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: 18,
+                  boxShadow: "0 2px 8px #f59e0b33",
+                }}
+              >
+                <svg
+                  width="40"
+                  height="40"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#fff"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  {resent ? "Resent!" : `Resend Verification Email`}
-                </button>
-              </form>
-            ) : (
-              <div className="text-red-500 text-sm font-medium">
-                You have reached the maximum number of attempts. Please check
-                your email details carefully and try again after some time.
+                  <polyline points="20 6 10.8 17 4 11.2"></polyline>
+                </svg>
               </div>
-            )
+              <div
+                style={{
+                  color: "var(--color-primary)",
+                  fontSize: 16,
+                  fontWeight: 700,
+                  marginBottom: 6,
+                }}
+              >
+                Verification email resent!
+              </div>
+              <div style={{ color: "var(--color-secondary)", fontSize: 13 }}>
+                Please check your inbox.
+              </div>
+            </div>
+          ) : resendCount !== null && resendCount >= MAX_RESEND_ATTEMPTS ? (
+            <div
+              className="text-base font-semibold"
+              style={{
+                fontSize: 16,
+                color: "var(--color-error-text, #b91c1c)",
+                margin: "0 auto 12px auto",
+                maxWidth: 440,
+                textAlign: "center",
+                letterSpacing: 0.1,
+                opacity: 0.98,
+                background: "none",
+                border: "none",
+                padding: 0,
+              }}
+            >
+              You have reached the maximum number of attempts. Please check your
+              email details carefully and try again after some time.
+            </div>
+          ) : error ? (
+            <div
+              className="text-base font-semibold mb-4"
+              style={{
+                fontSize: 16,
+                color: "var(--color-error-text, #b91c1c)",
+                background: "var(--color-error-bg, #fef2f2)",
+                borderRadius: 12,
+                padding: "13px 20px",
+                margin: "0 auto",
+                maxWidth: 440,
+                marginBottom: 12,
+                border: "1.5px solid var(--color-error-border, #fecaca)",
+                // boxShadow: "0 6px 18px #fecaca33",
+                letterSpacing: 0.1,
+                opacity: 0.98,
+              }}
+            >
+              <span
+                role="img"
+                aria-label="error"
+                style={{
+                  fontSize: 18,
+                  verticalAlign: "middle",
+                  marginRight: 7,
+                }}
+              >
+                ❌
+              </span>
+              {error}
+            </div>
+          ) : showResend ? (
+            <form onSubmit={handleResend}>
+              <button
+                type="submit"
+                className="py-2 px-6 rounded font-bold transition hover:brightness-110 active:scale-95"
+                style={{
+                  background: "var(--color-accent)",
+                  color: "#fff",
+                  fontSize: 16,
+                }}
+                disabled={timer > 0}
+              >
+                Resend Verification Email
+              </button>
+            </form>
           ) : (
-            <div className="text-sm text-gray-500">
+            <div className="text-base text-gray-500" style={{ fontSize: 15 }}>
               You can resend in {formatTimer(timer)}
             </div>
           )}
@@ -154,7 +340,15 @@ const ResendVerification = () => {
         <div className="mt-6 text-center">
           <Link
             to="/login"
-            className="font-medium underline-offset-2 custom-link"
+            className="font-semibold underline-offset-2"
+            style={{
+              color: "var(--color-accent)",
+              fontSize: 16,
+              marginTop: 8,
+              display: "inline-block",
+              fontWeight: 700,
+              letterSpacing: 0.2,
+            }}
           >
             Back to Login
           </Link>
