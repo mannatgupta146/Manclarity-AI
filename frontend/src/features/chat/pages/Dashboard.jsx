@@ -3,7 +3,7 @@ import ThemeToggleButton from "../../../theme/ThemeToggleButton"
 // Removed useState, using Redux-managed state from useChat
 import { useNavigate } from "react-router-dom"
 import { useChat } from "../hooks/useChat"
-import { setCurrentChatId } from "../chat.slice"
+import { setCurrentChatId, setChats } from "../chat.slice"
 import { useDispatch, useSelector } from "react-redux"
 
 const Dashboard = () => {
@@ -34,6 +34,7 @@ const Dashboard = () => {
     handleSearchChange,
     currentChatId,
     loadChats,
+    handleOpenChat,
   } = useChat()
 
   // Fetch chats from backend on mount
@@ -74,10 +75,10 @@ const Dashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-(--color-bg) text-(--color-text) flex-row">
-      {/* Sidebar */}
-      <aside className="dashboard-sidebar flex flex-col justify-between bg-(--color-card) border-r-[1.5px] border-(--color-border) text-(--color-text) z-2 min-w-0 w-75 pb-4.5">
+      {/* Sidebar - fixed, always visible */}
+      <aside className="dashboard-sidebar flex flex-col justify-between bg-(--color-card) border-r border-(--color-border) text-(--color-text) z-20 min-w-0 w-75 pb-6 fixed left-0 top-0 h-screen max-w-full">
         <div>
-          <div className="flex items-center gap-3 p-7 pt-7 pb-2.5">
+          <div className="flex items-center gap-3 px-7 pt-7 pb-2.5">
             <img
               src="/brand.png"
               alt="Logo"
@@ -94,7 +95,7 @@ const Dashboard = () => {
               placeholder="Search chats..."
               value={search ?? ""}
               onChange={handleSearchChange}
-              className="w-full p-[9px_14px] rounded-lg border-[1.5px] border-(--color-border) bg-(--color-chat-search-bg) text-(--color-chat-search-text) text-[15px] mb-2.5 outline-none box-border"
+              className="w-full py-2 px-3.5 rounded-lg border border-(--color-border) bg-(--color-chat-search-bg) text-(--color-chat-search-text) text-[15px] mb-2 outline-none box-border"
             />
             {/* Add chat button below search */}
             <button
@@ -113,7 +114,7 @@ const Dashboard = () => {
                 )
                 dispatch(setCurrentChatId(newId))
               }}
-              className="w-full mb-2.5 p-[10px_0] rounded-lg bg-(--color-accent) text-white font-bold text-[16px] border-none cursor-pointer flex items-center justify-center gap-2 shadow-[0_2px_8px_#f59e0b22] transition-all duration-150"
+              className="w-full mb-2 py-2 rounded-lg bg-(--color-accent) text-white font-bold text-[16px] border-none cursor-pointer flex items-center justify-center gap-2 shadow transition-all duration-150"
               title="Add Chat"
             >
               <span className="text-[20px] font-black leading-none">+</span> Add
@@ -121,10 +122,7 @@ const Dashboard = () => {
             </button>
           </div>
           {/* Chat list in fixed-height, scrollable area with custom scrollbar */}
-          <div
-            className="px-7 pb-2.5 chat-list-scrollbar"
-            style={{ maxHeight: "320px", overflowY: "auto" }}
-          >
+          <div className="px-7 pb-2.5 overflow-y-auto max-h-80">
             {Object.keys(chats).length === 0 ? (
               <div className="text-(--color-secondary) text-center mt-5">
                 No chats yet
@@ -141,14 +139,12 @@ const Dashboard = () => {
                 .map((chat) => (
                   <div
                     key={chat.id || chat._id}
-                    onClick={() => {
-                      dispatch(setCurrentChatId(chat.id || chat._id))
-                    }}
+                    onClick={() => handleOpenChat(chat.id || chat._id)}
                     className={
-                      `rounded-lg p-[10px_14px] mb-2 cursor-pointer font-semibold text-[15px] transition-all duration-150 ` +
+                      `rounded-lg py-2 px-3.5 mb-2 cursor-pointer font-semibold text-[15px] transition-all duration-150 ` +
                       (currentChatId === (chat.id || chat._id)
                         ? "bg-(--color-accent) text-white border-2 border-(--color-accent)"
-                        : "bg-(--color-chat-item-bg) text-(--color-chat-item-text) border-[1.5px] border-(--color-border)")
+                        : "bg-(--color-chat-item-bg) text-(--color-chat-item-text) border border-(--color-border)")
                     }
                   >
                     {chat.title}
@@ -157,13 +153,10 @@ const Dashboard = () => {
             )}
           </div>
         </div>
-        {/* Bottom: Theme toggle, user info, logout */}
+        {/* Bottom: user info, logout (ThemeToggleButton moved out) */}
         <div className="px-7">
-          <div className="flex items-center gap-2.5 mb-4.5">
-            <ThemeToggleButton />
-          </div>
-          <div className="flex items-center gap-3 mb-2.5">
-            <div className="w-8 h-8 rounded-full bg-(--color-accent) text-white flex items-center justify-center font-bold text-[20px] uppercase shadow-[0_2px_x_#f59e0b22] border-2 border-(--color-border)">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-8 h-8 rounded-full bg-(--color-accent) text-white flex items-center justify-center font-bold text-[20px] uppercase shadow border-2 border-(--color-border)">
               {user?.name?.[0] || "U"}
             </div>
             <span className="font-bold text-[16px] text-(--color-chat-user-text)">
@@ -171,7 +164,7 @@ const Dashboard = () => {
             </span>
           </div>
           <button
-            className="w-full bg-(--color-error-bg) text-(--color-error-text) border-[1.5px] border-(--color-error-border) rounded-lg p-[9px_0] font-bold text-[15px] cursor-pointer mb-0.5 mt-0.5 transition-all duration-150"
+            className="w-full bg-(--color-error-bg) text-(--color-error-text) border border-(--color-error-border) rounded-lg py-2 font-bold text-[15px] cursor-pointer mb-1 mt-1 transition-all duration-150"
             onClick={() => {
               /* TODO: implement logout */
             }}
@@ -180,27 +173,26 @@ const Dashboard = () => {
           </button>
         </div>
       </aside>
-      <main className="dashboard-main flex flex-col flex-1 min-h-screen bg-(--color-bg) text-(--color-text) z-1">
-        {/* Welcome message and tags, only show if no chat messages */}
-        <div className="flex-1 flex flex-col items-center min-w-0 w-full box-border px-2.5 z-0">
-          <div
-            className="flex flex-col w-full max-w-150 mx-auto px-4 py-8 gap-2 flex-1 justify-start overflow-y-auto"
-            style={{
-              minHeight: 200,
-              maxHeight: "calc(100vh - 180px)",
-              overflowY: "auto",
-            }}
-          >
+      {/* Main chat area - margin left for sidebar, scrollable */}
+      <main className="dashboard-main flex flex-col flex-1 min-h-screen bg-(--color-bg) text-(--color-text) z-10 ml-75">
+        {/* Chat area and input fixed layout */}
+        <div className="flex flex-col flex-1 min-h-0">
+          {/* Theme toggle at top right of main chat area, fixed */}
+          <div className="fixed right-0 top-0 z-30 p-6 pr-8">
+            <ThemeToggleButton />
+          </div>
+          {/* Chat messages area, scrollable, fills all space above input */}
+          <div className="flex flex-col w-full max-w-3xl mx-auto px-4 py-8 gap-2 flex-1 justify-start overflow-y-auto min-h-0 max-h-none hide-scrollbar">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center w-full h-full">
-                <h1 className="text-[32px] font-bold text-(--color-accent) mb-4.5 tracking-[0.2px]">
+                <h1 className="text-[32px] font-bold text-(--color-accent) mb-4 tracking-[0.2px]">
                   How can I help you today?
                 </h1>
-                <div className="flex gap-3 flex-wrap mb-7.5">
+                <div className="flex gap-3 flex-wrap mb-8">
                   {tags.map((tag) => (
                     <span
                       key={tag}
-                      className="bg-(--color-card) border-[1.5px] border-(--color-border) text-(--color-secondary) dark:border-zinc-700 rounded-lg p-[7px_18px] font-bold text-[15px] cursor-pointer transition-all duration-150"
+                      className="bg-(--color-card) border border-(--color-border) text-(--color-secondary) rounded-lg py-2 px-5 font-bold text-[15px] cursor-pointer transition-all duration-150"
                     >
                       {tag}
                     </span>
@@ -221,13 +213,7 @@ const Dashboard = () => {
                       <div className="w-6 h-6 flex items-center justify-center rounded-full bg-(--color-accent) text-white font-bold text-sm shadow select-none">
                         {(user?.name || "U").charAt(0).toUpperCase()}
                       </div>
-                      <div
-                        className="px-4 py-2 rounded-2xl shadow border border-transparent"
-                        style={{
-                          background: "var(--color-chat-user-bg)",
-                          color: "var(--color-chat-user-text)",
-                        }}
-                      >
+                      <div className="px-4 py-2 rounded-2xl shadow border border-transparent wrap-break-word whitespace-pre-line max-w-120 bg-(--color-chat-user-bg) text-(--color-chat-user-text)">
                         <span>{msg.content}</span>
                       </div>
                     </div>
@@ -238,7 +224,7 @@ const Dashboard = () => {
                         alt="AI"
                         className="w-6 h-6 rounded-md shadow select-none"
                       />
-                      <div className="px-4 py-2 rounded-2xl shadow border border-(--color-border) bg-(--color-card) text-(--color-primary)">
+                      <div className="px-4 py-2 rounded-2xl shadow border border-(--color-border) bg-(--color-card) text-(--color-primary) wrap-break-word whitespace-pre-line max-w-120">
                         <span>{msg.content}</span>
                       </div>
                     </div>
@@ -248,11 +234,10 @@ const Dashboard = () => {
             )}
           </div>
         </div>
-        {/* Chat messages */}
-        {/* Input bar */}
-        <div className="w-full pb-8 flex justify-center box-border">
+        {/* Chat input fixed at bottom */}
+        <div className="w-full flex justify-center box-border sticky bottom-0 bg-(--color-bg) z-10 pb-8 pt-2">
           <form
-            className="w-full max-w-150 flex gap-2.5 box-border"
+            className="w-full max-w-3xl flex gap-2.5 box-border"
             onSubmit={handleSend}
           >
             <input
@@ -260,11 +245,11 @@ const Dashboard = () => {
               placeholder="Type your message..."
               value={input ?? ""}
               onChange={handleInputChange}
-              className="flex-1 p-[13px_18px] rounded-[10px] border-[1.5px] border-(--color-border) bg-(--color-chat-input-bg) text-(--color-chat-input-text) text-[16px] outline-none box-border"
+              className="flex-1 py-3 px-4 rounded-lg border border-(--color-border) bg-(--color-chat-input-bg) text-(--color-chat-input-text) text-[16px] outline-none box-border"
             />
             <button
               type="submit"
-              className="bg-(--color-accent) text-white border-none rounded-[10px] p-[0_28px] font-bold text-[16px] cursor-pointer shadow-[0_2px_8px_#f59e0b22] transition-all duration-150"
+              className="bg-(--color-accent) text-white border-none rounded-lg px-7 font-bold text-[16px] cursor-pointer shadow transition-all duration-150"
             >
               Send
             </button>

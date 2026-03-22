@@ -1,3 +1,53 @@
+/* Hide scrollbar but allow scroll for main chat area */
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+/* Custom scrollbar for main chat area */
+.main-chat-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-accent) var(--color-bg);
+}
+.main-chat-scrollbar::-webkit-scrollbar {
+  width: 10px;
+  background: var(--color-bg);
+  border-radius: 8px;
+}
+.main-chat-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    135deg,
+    var(--color-accent),
+    var(--color-accent-hover)
+  );
+  border-radius: 8px;
+  min-height: 24px;
+}
+.main-chat-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-hover);
+}
+.main-chat-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-bg);
+  border-radius: 8px;
+}
+.dark .main-chat-scrollbar {
+  scrollbar-color: var(--color-accent) var(--color-bg);
+}
+.dark .main-chat-scrollbar::-webkit-scrollbar {
+  background: var(--color-bg);
+}
+.dark .main-chat-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    135deg,
+    var(--color-accent),
+    var(--color-accent-hover)
+  );
+}
+.dark .main-chat-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
 /* Custom scrollbar for chat list */
 .chat-list-scrollbar {
   scrollbar-width: thin;

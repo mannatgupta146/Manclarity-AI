@@ -16,7 +16,7 @@ export const getChatsApi = async () => {
 }
 
 export const getChatMessagesApi = async (chatId) => {
-  const response = await api.get(`/api/chat/${chatId}/messages`)
+  const response = await api.get(`/api/chats/${chatId}/messages`)
   return response.data
 }
 
