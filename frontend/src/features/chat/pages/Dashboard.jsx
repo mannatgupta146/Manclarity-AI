@@ -1,28 +1,68 @@
-import React, { useEffect } from "react"
+import React, { use, useEffect } from "react"
 import ThemeToggleButton from "../../../theme/ThemeToggleButton"
-import { useSelector } from "react-redux"
-import { useState } from "react"
+// Removed useState, using Redux-managed state from useChat
 import { useNavigate } from "react-router-dom"
 import { useChat } from "../hooks/useChat"
+import { setCurrentChatId } from "../chat.slice"
+import { useDispatch, useSelector } from "react-redux"
 
 const Dashboard = () => {
   const user = useSelector((state) => state.auth.user)
   const navigate = useNavigate()
-  const { initializeSocketConnection } = useChat()
-  const [chats, setChats] = useState([])
-  const [selectedChat, setSelectedChat] = useState(null)
-  // Dummy messages for demonstration
-  const [messages, setMessages] = useState([
-    { sender: "user", text: "Hello, AI!" },
-    { sender: "ai", text: "Hello! How can I assist you today?" },
-    { sender: "user", text: "Tell me a joke." },
-    {
-      sender: "ai",
-      text: "Why did the developer go broke? Because he used up all his cache!",
-    },
-  ])
-  const [input, setInput] = useState("")
-  const [search, setSearch] = useState("")
+
+  // Debug: log currentChatId and chats on each render
+  const chatState = useSelector((state) => state.chat)
+  console.log(
+    "[Dashboard render] currentChatId:",
+    chatState.currentChatId,
+    "chats:",
+    chatState.chats,
+  )
+
+  // Remove local input/search state and handlers
+
+  const dispatch = useDispatch()
+  const chats = useSelector((state) => state.chat.chats)
+  // Removed duplicate currentChatId, use from useChat()
+
+  // Use chat actions from useChat hook
+  const {
+    handleSendMessage,
+    input,
+    handleInputChange,
+    search,
+    handleSearchChange,
+    currentChatId,
+    loadChats,
+  } = useChat()
+
+  // Fetch chats from backend on mount
+  useEffect(() => {
+    loadChats()
+  }, [])
+
+  // Handle sending a message
+  const handleSend = (e) => {
+    e.preventDefault()
+    console.log(
+      "Send button clicked. Input:",
+      input,
+      "CurrentChatId:",
+      currentChatId,
+    )
+    if (!input || !input.trim()) return
+    handleSendMessage()
+  }
+
+  // Get messages for the selected chat, or empty array if none
+  const messages =
+    currentChatId &&
+    chats &&
+    chats[currentChatId] &&
+    chats[currentChatId].messages
+      ? chats[currentChatId].messages
+      : []
+
   const tags = [
     "Getting Started",
     "Account",
@@ -31,27 +71,6 @@ const Dashboard = () => {
     "Troubleshooting",
     "Feedback",
   ]
-  useEffect(() => {
-    if (!user) {
-      navigate("/login")
-    }
-  }, [user, navigate])
-  useEffect(() => {
-    initializeSocketConnection()
-  }, [])
-  const handleSelectChat = (chat) => {
-    setSelectedChat(chat)
-    setMessages([]) // Replace with fetched messages
-  }
-  const handleSend = (e) => {
-    e.preventDefault()
-    if (!input.trim()) return
-    setMessages((prev) => [...prev, { sender: user?.name, text: input }])
-    setInput("")
-  }
-  const handleSearch = (e) => {
-    setSearch(e.target.value)
-  }
 
   return (
     <div className="flex min-h-screen bg-(--color-bg) text-(--color-text) flex-row">
@@ -73,53 +92,69 @@ const Dashboard = () => {
             <input
               type="text"
               placeholder="Search chats..."
-              value={search}
-              onChange={handleSearch}
+              value={search ?? ""}
+              onChange={handleSearchChange}
               className="w-full p-[9px_14px] rounded-lg border-[1.5px] border-(--color-border) bg-(--color-chat-search-bg) text-(--color-chat-search-text) text-[15px] mb-2.5 outline-none box-border"
             />
-          </div>
-          {/* Chat list */}
-          <div className="px-7 pb-2.5 flex-1 overflow-y-auto">
-            {chats.length === 0 ? (
-              <div className="text-(--color-secondary) text-center mt-5">
-                No chats yet
-              </div>
-            ) : (
-              chats
-                .filter((chat) =>
-                  chat.name.toLowerCase().includes(search.toLowerCase()),
-                )
-                .map((chat) => (
-                  <div
-                    key={chat.id}
-                    onClick={() => handleSelectChat(chat)}
-                    className={
-                      `rounded-lg p-[10px_14px] mb-2 cursor-pointer font-semibold text-[15px] transition-all duration-150 ` +
-                      (selectedChat?.id === chat.id
-                        ? "bg-(--color-accent) text-white border-2 border-(--color-accent)"
-                        : "bg-(--color-chat-item-bg) text-(--color-chat-item-text) border-[1.5px] border-(--color-border)")
-                    }
-                  >
-                    {chat.name}
-                  </div>
-                ))
-            )}
-            {/* Add chat button */}
+            {/* Add chat button below search */}
             <button
               onClick={() => {
-                // TODO: Implement add chat logic
+                const newId = Date.now().toString()
                 const newChat = {
-                  id: Date.now(),
-                  name: `New Chat ${chats.length + 1}`,
+                  id: newId,
+                  title: `New Chat ${Object.keys(chats).length + 1}`,
+                  messages: [],
                 }
-                setChats([...chats, newChat])
+                dispatch(
+                  setChats({
+                    ...chats,
+                    [newId]: newChat,
+                  }),
+                )
+                dispatch(setCurrentChatId(newId))
               }}
-              className="w-full mt-2.5 p-[10px_0] rounded-lg bg-(--color-accent) text-white font-bold text-[16px] border-none cursor-pointer flex items-center justify-center gap-2 shadow-[0_2px_8px_#f59e0b22] transition-all duration-150"
+              className="w-full mb-2.5 p-[10px_0] rounded-lg bg-(--color-accent) text-white font-bold text-[16px] border-none cursor-pointer flex items-center justify-center gap-2 shadow-[0_2px_8px_#f59e0b22] transition-all duration-150"
               title="Add Chat"
             >
               <span className="text-[20px] font-black leading-none">+</span> Add
               Chat
             </button>
+          </div>
+          {/* Chat list in fixed-height, scrollable area with custom scrollbar */}
+          <div
+            className="px-7 pb-2.5 chat-list-scrollbar"
+            style={{ maxHeight: "320px", overflowY: "auto" }}
+          >
+            {Object.keys(chats).length === 0 ? (
+              <div className="text-(--color-secondary) text-center mt-5">
+                No chats yet
+              </div>
+            ) : (
+              Object.values(chats)
+                .filter(
+                  (chat) =>
+                    typeof chat.title === "string" &&
+                    chat.title
+                      .toLowerCase()
+                      .includes((search ?? "").toLowerCase()),
+                )
+                .map((chat) => (
+                  <div
+                    key={chat.id || chat._id}
+                    onClick={() => {
+                      dispatch(setCurrentChatId(chat.id || chat._id))
+                    }}
+                    className={
+                      `rounded-lg p-[10px_14px] mb-2 cursor-pointer font-semibold text-[15px] transition-all duration-150 ` +
+                      (currentChatId === (chat.id || chat._id)
+                        ? "bg-(--color-accent) text-white border-2 border-(--color-accent)"
+                        : "bg-(--color-chat-item-bg) text-(--color-chat-item-text) border-[1.5px] border-(--color-border)")
+                    }
+                  >
+                    {chat.title}
+                  </div>
+                ))
+            )}
           </div>
         </div>
         {/* Bottom: Theme toggle, user info, logout */}
@@ -150,7 +185,11 @@ const Dashboard = () => {
         <div className="flex-1 flex flex-col items-center min-w-0 w-full box-border px-2.5 z-0">
           <div
             className="flex flex-col w-full max-w-150 mx-auto px-4 py-8 gap-2 flex-1 justify-start overflow-y-auto"
-            style={{ minHeight: 200 }}
+            style={{
+              minHeight: 200,
+              maxHeight: "calc(100vh - 180px)",
+              overflowY: "auto",
+            }}
           >
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center w-full h-full">
@@ -174,10 +213,10 @@ const Dashboard = () => {
                   key={idx}
                   className={
                     "flex w-full mb-4 " +
-                    (msg.sender === "user" ? "justify-end" : "justify-start")
+                    (msg.role === "user" ? "justify-end" : "justify-start")
                   }
                 >
-                  {msg.sender === "user" ? (
+                  {msg.role === "user" ? (
                     <div className="flex flex-row-reverse items-end gap-2 max-w-[70%]">
                       <div className="w-6 h-6 flex items-center justify-center rounded-full bg-(--color-accent) text-white font-bold text-sm shadow select-none">
                         {(user?.name || "U").charAt(0).toUpperCase()}
@@ -189,7 +228,7 @@ const Dashboard = () => {
                           color: "var(--color-chat-user-text)",
                         }}
                       >
-                        <span>{msg.text}</span>
+                        <span>{msg.content}</span>
                       </div>
                     </div>
                   ) : (
@@ -200,7 +239,7 @@ const Dashboard = () => {
                         className="w-6 h-6 rounded-md shadow select-none"
                       />
                       <div className="px-4 py-2 rounded-2xl shadow border border-(--color-border) bg-(--color-card) text-(--color-primary)">
-                        <span>{msg.text}</span>
+                        <span>{msg.content}</span>
                       </div>
                     </div>
                   )}
@@ -219,8 +258,8 @@ const Dashboard = () => {
             <input
               type="text"
               placeholder="Type your message..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
+              value={input ?? ""}
+              onChange={handleInputChange}
               className="flex-1 p-[13px_18px] rounded-[10px] border-[1.5px] border-(--color-border) bg-(--color-chat-input-bg) text-(--color-chat-input-text) text-[16px] outline-none box-border"
             />
             <button

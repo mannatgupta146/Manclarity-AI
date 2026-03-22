@@ -1,3 +1,45 @@
+/* Custom scrollbar for chat list */
+.chat-list-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-accent) var(--color-card);
+}
+.chat-list-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  background: var(--color-card);
+  border-radius: 8px;
+}
+.chat-list-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    135deg,
+    var(--color-accent),
+    var(--color-accent-hover)
+  );
+  border-radius: 8px;
+  min-height: 24px;
+}
+.chat-list-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-hover);
+}
+.chat-list-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-card);
+  border-radius: 8px;
+}
+.dark .chat-list-scrollbar {
+  scrollbar-color: var(--color-accent) var(--color-card);
+}
+.dark .chat-list-scrollbar::-webkit-scrollbar {
+  background: var(--color-card);
+}
+.dark .chat-list-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    135deg,
+    var(--color-accent),
+    var(--color-accent-hover)
+  );
+}
+.dark .chat-list-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-card);
+}
 /* Responsive styles for dashboard */
 @media (max-width: 900px) {
   .dashboard-sidebar {
