@@ -1,5 +1,8 @@
-import React, { use, useEffect } from "react"
+import React, { use, useEffect, useState } from "react"
 import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
+import { tomorrow as codeTheme } from "react-syntax-highlighter/dist/esm/styles/prism"
 import ThemeToggleButton from "../../../theme/ThemeToggleButton"
 // Removed useState, using Redux-managed state from useChat
 import { useNavigate } from "react-router-dom"
@@ -130,13 +133,17 @@ const Dashboard = () => {
                 )
                 .sort((a, b) => {
                   // 'New Chat' (temp) always at top
-                  const isATemp = a.id?.toString().startsWith('temp')
-                  const isBTemp = b.id?.toString().startsWith('temp')
+                  const isATemp = a.id?.toString().startsWith("temp")
+                  const isBTemp = b.id?.toString().startsWith("temp")
                   if (isATemp && !isBTemp) return -1
                   if (!isATemp && isBTemp) return 1
                   // Otherwise, sort by lastUpdated desc
-                  const aTime = a.lastUpdated ? new Date(a.lastUpdated).getTime() : 0
-                  const bTime = b.lastUpdated ? new Date(b.lastUpdated).getTime() : 0
+                  const aTime = a.lastUpdated
+                    ? new Date(a.lastUpdated).getTime()
+                    : 0
+                  const bTime = b.lastUpdated
+                    ? new Date(b.lastUpdated).getTime()
+                    : 0
                   return bTime - aTime
                 })
                 .map((chat) => {
@@ -144,11 +151,14 @@ const Dashboard = () => {
                   let time = ""
                   if (chat.lastUpdated) {
                     const d = new Date(chat.lastUpdated)
-                    time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    time = d.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
                   }
                   // Show 'New Chat' for temp chats
-                  const isTemp = chat.id?.toString().startsWith('temp')
-                  const displayTitle = isTemp ? 'New Chat' : chat.title
+                  const isTemp = chat.id?.toString().startsWith("temp")
+                  const displayTitle = isTemp ? "New Chat" : chat.title
                   return (
                     <div
                       key={chat.id || chat._id}
@@ -161,7 +171,9 @@ const Dashboard = () => {
                       }
                     >
                       <span>{displayTitle}</span>
-                      <span className="ml-2 text-xs text-(--color-secondary) font-normal">{time}</span>
+                      <span className="ml-2 text-xs text-(--color-secondary) font-normal">
+                        {time}
+                      </span>
                     </div>
                   )
                 })
@@ -198,7 +210,7 @@ const Dashboard = () => {
           </div>
           {/* Chat messages area, scrollable, fills all space above input */}
           <div className="flex flex-col w-full max-w-3xl mx-auto px-4 py-8 gap-2 flex-1 justify-start overflow-y-auto min-h-0 max-h-none hide-scrollbar">
-            {(currentChatId === null || messages.length === 0) ? (
+            {currentChatId === null || messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center w-full h-full">
                 <h1 className="text-[32px] font-bold text-(--color-accent) mb-4 tracking-[0.2px]">
                   How can I help you today?
@@ -241,46 +253,131 @@ const Dashboard = () => {
                       />
                       <div className="max-w-[85%] px-5 py-4 rounded-2xl shadow-md border border-(--color-border) bg-(--color-card) text-(--color-primary)">
                         {msg.content === "..." ? (
-                          <span className="inline-block animate-pulse text-lg font-semibold text-(--color-secondary)">...
+                          <span className="inline-block animate-pulse text-lg font-semibold text-(--color-secondary)">
+                            ...
                           </span>
                         ) : (
                           <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
                             components={{
-                              h1: ({children}) => (
-                                <h1 className="text-xl font-bold mt-3 mb-2">{children}</h1>
+                              h1: ({ children }) => (
+                                <h1 className="text-xl font-bold mt-3 mb-2">
+                                  {children}
+                                </h1>
                               ),
-                              h2: ({children}) => (
-                                <h2 className="text-lg font-semibold mt-3 mb-2">{children}</h2>
+                              h2: ({ children }) => (
+                                <h2 className="text-lg font-semibold mt-3 mb-2">
+                                  {children}
+                                </h2>
                               ),
-                              h3: ({children}) => (
-                                <h3 className="text-base font-semibold mt-2 mb-1">{children}</h3>
+                              h3: ({ children }) => (
+                                <h3 className="text-base font-semibold mt-2 mb-1">
+                                  {children}
+                                </h3>
                               ),
-                              p: ({children}) => (
-                                <p className="mb-2 leading-relaxed">{children}</p>
+                              p: ({ children }) => (
+                                <p className="mb-2 leading-relaxed">
+                                  {children}
+                                </p>
                               ),
-                              ul: ({children}) => (
-                                <ul className="list-disc ml-5 mb-2">{children}</ul>
+                              ul: ({ children }) => (
+                                <ul className="list-disc ml-5 mb-2">
+                                  {children}
+                                </ul>
                               ),
-                              ol: ({children}) => (
-                                <ol className="list-decimal ml-5 mb-2">{children}</ol>
+                              ol: ({ children }) => (
+                                <ol className="list-decimal ml-5 mb-2">
+                                  {children}
+                                </ol>
                               ),
-                              li: ({children}) => (
+                              li: ({ children }) => (
                                 <li className="mb-1">{children}</li>
                               ),
-                              strong: ({children}) => (
-                                <strong className="font-bold">{children}</strong>
+                              strong: ({ children }) => (
+                                <strong className="font-bold">
+                                  {children}
+                                </strong>
                               ),
-                              code({inline, children}) {
-                                return inline ? (
-                                  <code className="bg-gray-200 px-1.5 py-0.5 rounded text-sm">
+                              table: ({ children }) => (
+                                <div className="overflow-x-auto my-4 rounded-xl border border-(--color-border)">
+                                  <table className="w-full text-sm text-left border-collapse">
                                     {children}
-                                  </code>
-                                ) : (
-                                  <pre className="bg-black text-white p-3 rounded-lg overflow-x-auto my-2">
-                                    <code>{children}</code>
-                                  </pre>
+                                  </table>
+                                </div>
+                              ),
+                              thead: ({ children }) => (
+                                <thead className="bg-(--color-accent) text-white">
+                                  {children}
+                                </thead>
+                              ),
+                              th: ({ children }) => (
+                                <th className="px-4 py-3 font-semibold whitespace-nowrap">
+                                  {children}
+                                </th>
+                              ),
+                              td: ({ children }) => (
+                                <td className="px-4 py-3 border-t border-(--color-border) align-top">
+                                  {children}
+                                </td>
+                              ),
+                              tr: ({ children, ...props }) => (
+                                <tr className="even:bg-[rgba(0,0,0,0.03)] hover:bg-[rgba(0,0,0,0.06)] transition">
+                                  {children}
+                                </tr>
+                              ),
+                              code({ inline, className, children, ...props }) {
+                                const [copied, setCopied] = useState(false)
+                                const codeString = children.join
+                                  ? children.join("")
+                                  : String(children)
+                                let lang = ""
+                                if (
+                                  className &&
+                                  className.startsWith("language-")
+                                ) {
+                                  lang = className.replace("language-", "")
+                                }
+                                if (inline) {
+                                  return (
+                                    <code className="bg-gray-200 px-1.5 py-0.5 rounded text-sm font-mono border border-gray-300">
+                                      {children}
+                                    </code>
+                                  )
+                                }
+                                return (
+                                  <div className="relative my-3 group">
+                                    <button
+                                      type="button"
+                                      className={`absolute top-2 right-2 z-10 opacity-80 group-hover:opacity-100 bg-gray-700 text-white text-xs px-2 py-1 rounded shadow hover:bg-gray-900 transition font-semibold ${copied ? "bg-green-600" : ""}`}
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(
+                                          codeString,
+                                        )
+                                        setCopied(true)
+                                        setTimeout(() => setCopied(false), 1200)
+                                      }}
+                                      title="Copy code"
+                                    >
+                                      {copied ? "Copied!" : "Copy"}
+                                    </button>
+                                    <SyntaxHighlighter
+                                      language={lang || undefined}
+                                      style={codeTheme}
+                                      customStyle={{
+                                        borderRadius: "0.5rem",
+                                        fontSize: "0.97em",
+                                        padding: "1.2em",
+                                        background: "#18181b",
+                                        border: "1px solid #333",
+                                        margin: 0,
+                                      }}
+                                      wrapLongLines={true}
+                                    >
+                                      {codeString}
+                                    </SyntaxHighlighter>
+                                  </div>
                                 )
-                              }
+                              },
                             }}
                           >
                             {msg.content}
@@ -312,7 +409,7 @@ const Dashboard = () => {
               type="submit"
               className="bg-(--color-accent) text-white border-none rounded-lg px-7 font-bold text-[16px] cursor-pointer shadow transition-all duration-150"
               disabled={isLoading}
-              style={isLoading ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
+              style={isLoading ? { opacity: 0.6, cursor: "not-allowed" } : {}}
             >
               Send
             </button>
