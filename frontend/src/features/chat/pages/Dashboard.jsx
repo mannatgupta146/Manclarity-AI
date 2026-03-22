@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux"
 
 const Dashboard = () => {
   const user = useSelector((state) => state.auth.user)
+  const isLoading = useSelector((state) => state.chat.isLoading)
   const navigate = useNavigate()
 
   // Debug: log currentChatId and chats on each render
@@ -101,19 +102,8 @@ const Dashboard = () => {
             {/* Add chat button below search */}
             <button
               onClick={() => {
-                const newId = Date.now().toString()
-                const newChat = {
-                  id: newId,
-                  title: `New Chat ${Object.keys(chats).length + 1}`,
-                  messages: [],
-                }
-                dispatch(
-                  setChats({
-                    ...chats,
-                    [newId]: newChat,
-                  }),
-                )
-                dispatch(setCurrentChatId(newId))
+                // Only reset currentChatId to null to start a new chat
+                dispatch(setCurrentChatId(null))
               }}
               className="w-full mb-2 py-2 rounded-lg bg-(--color-accent) text-white font-bold text-[16px] border-none cursor-pointer flex items-center justify-center gap-2 shadow transition-all duration-150"
               title="Add Chat"
@@ -184,7 +174,7 @@ const Dashboard = () => {
           </div>
           {/* Chat messages area, scrollable, fills all space above input */}
           <div className="flex flex-col w-full max-w-3xl mx-auto px-4 py-8 gap-2 flex-1 justify-start overflow-y-auto min-h-0 max-h-none hide-scrollbar">
-            {messages.length === 0 ? (
+            {(currentChatId === null || messages.length === 0) ? (
               <div className="flex flex-col items-center justify-center w-full h-full">
                 <h1 className="text-[32px] font-bold text-(--color-accent) mb-4 tracking-[0.2px]">
                   How can I help you today?
@@ -226,55 +216,52 @@ const Dashboard = () => {
                         className="w-6 h-6 rounded-md shadow select-none"
                       />
                       <div className="max-w-[85%] px-5 py-4 rounded-2xl shadow-md border border-(--color-border) bg-(--color-card) text-(--color-primary)">
-                        
-                        <ReactMarkdown
-                          components={{
-                            h1: ({children}) => (
-                              <h1 className="text-xl font-bold mt-3 mb-2">{children}</h1>
-                            ),
-                            h2: ({children}) => (
-                              <h2 className="text-lg font-semibold mt-3 mb-2">{children}</h2>
-                            ),
-                            h3: ({children}) => (
-                              <h3 className="text-base font-semibold mt-2 mb-1">{children}</h3>
-                            ),
-
-                            p: ({children}) => (
-                              <p className="mb-2 leading-relaxed">{children}</p>
-                            ),
-
-                            ul: ({children}) => (
-                              <ul className="list-disc ml-5 mb-2">{children}</ul>
-                            ),
-
-                            ol: ({children}) => (
-                              <ol className="list-decimal ml-5 mb-2">{children}</ol>
-                            ),
-
-                            li: ({children}) => (
-                              <li className="mb-1">{children}</li>
-                            ),
-
-                            strong: ({children}) => (
-                              <strong className="font-bold">{children}</strong>
-                            ),
-
-                            code({inline, children}) {
-                              return inline ? (
-                                <code className="bg-gray-200 px-1.5 py-0.5 rounded text-sm">
-                                  {children}
-                                </code>
-                              ) : (
-                                <pre className="bg-black text-white p-3 rounded-lg overflow-x-auto my-2">
-                                  <code>{children}</code>
-                                </pre>
-                              )
-                            }
-                          }}
-                        >
-                          {msg.content}
-                        </ReactMarkdown>
-
+                        {msg.content === "..." ? (
+                          <span className="inline-block animate-pulse text-lg font-semibold text-(--color-secondary)">...
+                          </span>
+                        ) : (
+                          <ReactMarkdown
+                            components={{
+                              h1: ({children}) => (
+                                <h1 className="text-xl font-bold mt-3 mb-2">{children}</h1>
+                              ),
+                              h2: ({children}) => (
+                                <h2 className="text-lg font-semibold mt-3 mb-2">{children}</h2>
+                              ),
+                              h3: ({children}) => (
+                                <h3 className="text-base font-semibold mt-2 mb-1">{children}</h3>
+                              ),
+                              p: ({children}) => (
+                                <p className="mb-2 leading-relaxed">{children}</p>
+                              ),
+                              ul: ({children}) => (
+                                <ul className="list-disc ml-5 mb-2">{children}</ul>
+                              ),
+                              ol: ({children}) => (
+                                <ol className="list-decimal ml-5 mb-2">{children}</ol>
+                              ),
+                              li: ({children}) => (
+                                <li className="mb-1">{children}</li>
+                              ),
+                              strong: ({children}) => (
+                                <strong className="font-bold">{children}</strong>
+                              ),
+                              code({inline, children}) {
+                                return inline ? (
+                                  <code className="bg-gray-200 px-1.5 py-0.5 rounded text-sm">
+                                    {children}
+                                  </code>
+                                ) : (
+                                  <pre className="bg-black text-white p-3 rounded-lg overflow-x-auto my-2">
+                                    <code>{children}</code>
+                                  </pre>
+                                )
+                              }
+                            }}
+                          >
+                            {msg.content}
+                          </ReactMarkdown>
+                        )}
                       </div>
                     </div>
                   )}
@@ -295,10 +282,13 @@ const Dashboard = () => {
               value={input ?? ""}
               onChange={handleInputChange}
               className="flex-1 py-3 px-4 rounded-lg border border-(--color-border) bg-(--color-chat-input-bg) text-(--color-chat-input-text) text-[16px] outline-none box-border"
+              disabled={isLoading}
             />
             <button
               type="submit"
               className="bg-(--color-accent) text-white border-none rounded-lg px-7 font-bold text-[16px] cursor-pointer shadow transition-all duration-150"
+              disabled={isLoading}
+              style={isLoading ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
             >
               Send
             </button>

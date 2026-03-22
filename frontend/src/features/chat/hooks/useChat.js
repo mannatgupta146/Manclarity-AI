@@ -15,8 +15,11 @@ import {
   setError,
   setInput,
   setSearch,
+  replaceLoadingWithAI,
 } from "../chat.slice.js"
 import { useDispatch, useSelector } from "react-redux"
+
+import { store } from "../../../app/app.store.js"
 
 export const useChat = () => {
   const dispatch = useDispatch()
@@ -34,50 +37,96 @@ export const useChat = () => {
     )
     if (!input || !input.trim()) return
     dispatch(setIsLoading(true))
-    try {
-      let chatId = currentChatId
-      // If no chat is selected, create a new chat first
-      if (!chatId) {
-        // Create a new chat on the backend (or generate a temp id if backend does not require)
-        const newChatTitle = `New Chat ${Object.keys(chats).length + 1}`
-        // Option 1: If backend requires chat creation, call API here (not shown)
-        // Option 2: If sendMessageApi auto-creates chat, just call it with null/undefined chat
-        // We'll call sendMessageApi with no chat id
-        console.log(
-          "No chat selected, creating new chat with title:",
-          newChatTitle,
-        )
-      }
-      console.log("Calling sendMessageApi with:", {
-        message: input,
-        chat: chatId,
-      })
-      const data = await sendMessageApi({ message: input, chat: chatId })
-      console.log("API response:", data)
-      const { chat, aiMessage } = data
+    let chatId = currentChatId
+    let isNewChat = false
+    let tempChatId = chatId
+    if (!chatId) {
+      isNewChat = true
+      tempChatId = `temp-${Date.now()}`
       dispatch(
         createNewChat({
-          chatId: chat.id,
-          title: chat.title,
+          chatId: tempChatId,
+          title: `New Chat ${Object.keys(chats).length + 1}`,
         }),
       )
-      dispatch(setCurrentChatId(chat.id))
-      // Add both user and AI messages to the new chat
+      dispatch(setCurrentChatId(tempChatId))
+      // Add user message immediately
       dispatch(
         addNewMessage({
-          chatId: chat.id,
+          chatId: tempChatId,
           content: input,
           role: "user",
         }),
       )
+      // Add temporary AI loading message
       dispatch(
         addNewMessage({
-          chatId: chat.id,
-          content: aiMessage.content,
-          role: aiMessage.role,
+          chatId: tempChatId,
+          content: "...",
+          role: "ai",
+          loading: true,
         }),
       )
-      dispatch(setInput(""))
+    } else {
+      // Add user message immediately
+      dispatch(
+        addNewMessage({
+          chatId: tempChatId,
+          content: input,
+          role: "user",
+        }),
+      )
+      // Add temporary AI loading message
+      dispatch(
+        addNewMessage({
+          chatId: tempChatId,
+          content: "...",
+          role: "ai",
+          loading: true,
+        }),
+      )
+    }
+    dispatch(setInput(""))
+    try {
+      const data = await sendMessageApi({
+        message: input,
+        chat: isNewChat ? undefined : chatId,
+      })
+      const { chat, aiMessage } = data
+      const resolvedChatId = chat?.id || chat?._id
+      // Ensure aiMessage has role: 'ai' and log for debugging
+      const safeAiMessage = {
+        ...aiMessage,
+        role: "ai",
+      }
+      console.log("[handleSendMessage] aiMessage:", safeAiMessage)
+      if (isNewChat) {
+        // ...existing code for new chat...
+        const latestChats = store.getState().chat.chats
+        const tempMessages = (latestChats[tempChatId]?.messages || []).filter(
+          (msg) => !(msg.role === "ai" && msg.content === "..." && msg.loading),
+        )
+        const newChatObj = {
+          ...latestChats,
+          [resolvedChatId]: {
+            id: resolvedChatId,
+            title: chat.title,
+            messages: [...tempMessages, safeAiMessage],
+            lastUpdated: new Date().toISOString(),
+          },
+        }
+        delete newChatObj[tempChatId]
+        dispatch(setChats(newChatObj))
+        dispatch(setCurrentChatId(resolvedChatId))
+      } else {
+        // For existing chat, replace the loading message with the real AI message
+        dispatch(
+          replaceLoadingWithAI({
+            chatId: currentChatId,
+            aiContent: safeAiMessage.content,
+          }),
+        )
+      }
     } catch (err) {
       console.error("Send message error:", err)
       dispatch(setError("Failed to send message"))
