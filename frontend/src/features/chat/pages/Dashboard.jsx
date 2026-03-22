@@ -123,7 +123,7 @@ const Dashboard = () => {
             </button>
           </div>
           {/* Chat list in fixed-height, scrollable area with custom scrollbar */}
-          <div className="px-7 pb-2.5 overflow-y-auto max-h-80 chat-list-scrollbar">
+          <div className="px-7 pb-2.5 overflow-y-auto h-85 chat-list-scrollbar overscroll-contain">
             {Object.keys(chats).length === 0 ? (
               <div className="text-(--color-secondary) text-center mt-5">
                 No chats yet
@@ -175,7 +175,7 @@ const Dashboard = () => {
         </div>
       </aside>
       {/* Main chat area - margin left for sidebar, scrollable */}
-      <main className="dashboard-main flex flex-col flex-1 min-h-screen bg-(--color-bg) text-(--color-text) z-10 ml-75">
+      <main className="dashboard-main flex flex-col flex-1 min-h-screen bg-(--color-bg) text-(--color-text) z-10 ml-75 overscroll-contain">
         {/* Chat area and input fixed layout */}
         <div className="flex flex-col flex-1 min-h-0">
           {/* Theme toggle at top right of main chat area, fixed */}
