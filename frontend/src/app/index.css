@@ -1,3 +1,13 @@
+/* Hide scrollbar for the entire page */
+html,
+body {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
 /* Hide scrollbar but allow scroll for main chat area */
 .hide-scrollbar {
   scrollbar-width: none; /* Firefox */
@@ -54,7 +64,7 @@
   scrollbar-color: var(--color-accent) var(--color-card);
 }
 .chat-list-scrollbar::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
   background: var(--color-card);
   border-radius: 8px;
 }
@@ -65,7 +75,7 @@
     var(--color-accent-hover)
   );
   border-radius: 8px;
-  min-height: 24px;
+  min-height: 4px;
 }
 .chat-list-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--color-accent-hover);

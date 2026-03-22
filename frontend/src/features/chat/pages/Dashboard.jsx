@@ -122,7 +122,7 @@ const Dashboard = () => {
             </button>
           </div>
           {/* Chat list in fixed-height, scrollable area with custom scrollbar */}
-          <div className="px-7 pb-2.5 overflow-y-auto max-h-80">
+          <div className="px-7 pb-2.5 overflow-y-auto max-h-80 chat-list-scrollbar">
             {Object.keys(chats).length === 0 ? (
               <div className="text-(--color-secondary) text-center mt-5">
                 No chats yet
@@ -218,13 +218,13 @@ const Dashboard = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-end gap-2 max-w-[70%]">
+                    <div className="flex items-end gap-2 max-w-200">
                       <img
                         src="/brand.png"
                         alt="AI"
                         className="w-6 h-6 rounded-md shadow select-none"
                       />
-                      <div className="px-4 py-2 rounded-2xl shadow border border-(--color-border) bg-(--color-card) text-(--color-primary) wrap-break-word whitespace-pre-line max-w-120">
+                      <div className="px-4 py-2 rounded-2xl shadow border border-(--color-border) bg-(--color-card) text-(--color-primary) wrap-break-word whitespace-pre-line max-w-[90%]">
                         <span>{msg.content}</span>
                       </div>
                     </div>
