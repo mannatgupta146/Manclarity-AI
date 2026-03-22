@@ -119,6 +119,7 @@ const Dashboard = () => {
                 No chats yet
               </div>
             ) : (
+              // Sort chats: latest first, 'New Chat' (temp) always at top
               Object.values(chats)
                 .filter(
                   (chat) =>
@@ -127,20 +128,43 @@ const Dashboard = () => {
                       .toLowerCase()
                       .includes((search ?? "").toLowerCase()),
                 )
-                .map((chat) => (
-                  <div
-                    key={chat.id || chat._id}
-                    onClick={() => handleOpenChat(chat.id || chat._id)}
-                    className={
-                      `rounded-lg py-2 px-3.5 mb-2 cursor-pointer font-semibold text-[15px] transition-all duration-150 ` +
-                      (currentChatId === (chat.id || chat._id)
-                        ? "bg-(--color-accent) text-white border-2 border-(--color-accent)"
-                        : "bg-(--color-chat-item-bg) text-(--color-chat-item-text) border border-(--color-border)")
-                    }
-                  >
-                    {chat.title}
-                  </div>
-                ))
+                .sort((a, b) => {
+                  // 'New Chat' (temp) always at top
+                  const isATemp = a.id?.toString().startsWith('temp')
+                  const isBTemp = b.id?.toString().startsWith('temp')
+                  if (isATemp && !isBTemp) return -1
+                  if (!isATemp && isBTemp) return 1
+                  // Otherwise, sort by lastUpdated desc
+                  const aTime = a.lastUpdated ? new Date(a.lastUpdated).getTime() : 0
+                  const bTime = b.lastUpdated ? new Date(b.lastUpdated).getTime() : 0
+                  return bTime - aTime
+                })
+                .map((chat) => {
+                  // Format lastUpdated as HH:mm or fallback to blank
+                  let time = ""
+                  if (chat.lastUpdated) {
+                    const d = new Date(chat.lastUpdated)
+                    time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                  }
+                  // Show 'New Chat' for temp chats
+                  const isTemp = chat.id?.toString().startsWith('temp')
+                  const displayTitle = isTemp ? 'New Chat' : chat.title
+                  return (
+                    <div
+                      key={chat.id || chat._id}
+                      onClick={() => handleOpenChat(chat.id || chat._id)}
+                      className={
+                        `rounded-lg py-2 px-3.5 mb-2 cursor-pointer font-semibold text-[15px] transition-all duration-150 flex items-center justify-between ` +
+                        (currentChatId === (chat.id || chat._id)
+                          ? "bg-(--color-accent) text-white border-2 border-(--color-accent)"
+                          : "bg-(--color-chat-item-bg) text-(--color-chat-item-text) border border-(--color-border)")
+                      }
+                    >
+                      <span>{displayTitle}</span>
+                      <span className="ml-2 text-xs text-(--color-secondary) font-normal">{time}</span>
+                    </div>
+                  )
+                })
             )}
           </div>
         </div>

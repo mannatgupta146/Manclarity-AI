@@ -46,7 +46,7 @@ export const useChat = () => {
       dispatch(
         createNewChat({
           chatId: tempChatId,
-          title: `New Chat ${Object.keys(chats).length + 1}`,
+          title: `New Chat`,
         }),
       )
       dispatch(setCurrentChatId(tempChatId))
@@ -143,13 +143,14 @@ export const useChat = () => {
       const chatArray = Array.isArray(response)
         ? response
         : response.chats || []
-      // Convert array to object keyed by id
+      // Convert array to object keyed by id, include lastUpdated
       const chatObj = {}
       for (const chat of chatArray) {
         const id = chat._id || chat.id
         chatObj[id] = {
           id,
           title: chat.title,
+          lastUpdated: chat.lastUpdated || chat.updatedAt,
           messages: [],
         }
       }

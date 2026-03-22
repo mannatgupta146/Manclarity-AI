@@ -57,12 +57,20 @@ export async function sendMessage(req, res) {
 export async function getChats(req, res) {
   const user = req.user
 
-  const chats = await chatModel.find({ user: user.id })
+  // Get chats with updatedAt field
+  const chats = await chatModel.find({ user: user.id }).sort({ updatedAt: -1 })
+
+  // Map to include lastUpdated for frontend
+  const chatsWithLastUpdated = chats.map((chat) => ({
+    id: chat._id,
+    title: chat.title,
+    lastUpdated: chat.updatedAt,
+  }))
 
   res.status(200).json({
     message: "Chats retrieved successfully",
     success: true,
-    chats,
+    chats: chatsWithLastUpdated,
   })
 }
 
