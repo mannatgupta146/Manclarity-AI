@@ -1,4 +1,5 @@
 import React, { use, useEffect } from "react"
+import ReactMarkdown from "react-markdown"
 import ThemeToggleButton from "../../../theme/ThemeToggleButton"
 // Removed useState, using Redux-managed state from useChat
 import { useNavigate } from "react-router-dom"
@@ -224,8 +225,56 @@ const Dashboard = () => {
                         alt="AI"
                         className="w-6 h-6 rounded-md shadow select-none"
                       />
-                      <div className="px-4 py-2 rounded-2xl shadow border border-(--color-border) bg-(--color-card) text-(--color-primary) wrap-break-word whitespace-pre-line max-w-[90%]">
-                        <span>{msg.content}</span>
+                      <div className="max-w-[85%] px-5 py-4 rounded-2xl shadow-md border border-(--color-border) bg-(--color-card) text-(--color-primary)">
+                        
+                        <ReactMarkdown
+                          components={{
+                            h1: ({children}) => (
+                              <h1 className="text-xl font-bold mt-3 mb-2">{children}</h1>
+                            ),
+                            h2: ({children}) => (
+                              <h2 className="text-lg font-semibold mt-3 mb-2">{children}</h2>
+                            ),
+                            h3: ({children}) => (
+                              <h3 className="text-base font-semibold mt-2 mb-1">{children}</h3>
+                            ),
+
+                            p: ({children}) => (
+                              <p className="mb-2 leading-relaxed">{children}</p>
+                            ),
+
+                            ul: ({children}) => (
+                              <ul className="list-disc ml-5 mb-2">{children}</ul>
+                            ),
+
+                            ol: ({children}) => (
+                              <ol className="list-decimal ml-5 mb-2">{children}</ol>
+                            ),
+
+                            li: ({children}) => (
+                              <li className="mb-1">{children}</li>
+                            ),
+
+                            strong: ({children}) => (
+                              <strong className="font-bold">{children}</strong>
+                            ),
+
+                            code({inline, children}) {
+                              return inline ? (
+                                <code className="bg-gray-200 px-1.5 py-0.5 rounded text-sm">
+                                  {children}
+                                </code>
+                              ) : (
+                                <pre className="bg-black text-white p-3 rounded-lg overflow-x-auto my-2">
+                                  <code>{children}</code>
+                                </pre>
+                              )
+                            }
+                          }}
+                        >
+                          {msg.content}
+                        </ReactMarkdown>
+
                       </div>
                     </div>
                   )}
