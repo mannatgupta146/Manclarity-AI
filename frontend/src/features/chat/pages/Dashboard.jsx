@@ -209,7 +209,7 @@ const Dashboard = () => {
                       className={
                         `rounded-lg py-2 px-3.5 mb-2 cursor-pointer font-semibold text-[15px] transition-all duration-150 flex items-center justify-between ` +
                         (currentChatId === (chat.id || chat._id)
-                          ? "bg-(--color-accent) text-white border-2 border-(--color-accent)"
+                          ? "border-2 border-(--color-accent) bg-(--color-accent-bg-selected,rgba(245,158,11,0.10)) text-(--color-accent)"
                           : "bg-(--color-chat-item-bg) text-(--color-chat-item-text) border border-(--color-border)")
                       }
                     >
@@ -368,14 +368,14 @@ const Dashboard = () => {
                                 </strong>
                               ),
                               table: ({ children }) => (
-                                <div className="overflow-x-auto my-4 rounded-xl border border-(--color-border)">
+                                <div className="overflow-x-auto my-4 rounded-xl border border-(--color-border) bg-(--color-card)">
                                   <table className="w-full text-sm text-left border-collapse">
                                     {children}
                                   </table>
                                 </div>
                               ),
                               thead: ({ children }) => (
-                                <thead className="bg-(--color-accent) text-white">
+                                <thead className="bg-(--color-card) text-(--color-primary)">
                                   {children}
                                 </thead>
                               ),
@@ -390,7 +390,7 @@ const Dashboard = () => {
                                 </td>
                               ),
                               tr: ({ children, ...props }) => (
-                                <tr className="even:bg-[rgba(0,0,0,0.03)] hover:bg-[rgba(0,0,0,0.06)] transition">
+                                <tr className="even:bg-[rgba(0,0,0,0.03)] hover:bg-(--color-table-row-hover) transition">
                                   {children}
                                 </tr>
                               ),
