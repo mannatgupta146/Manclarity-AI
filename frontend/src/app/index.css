@@ -1,3 +1,23 @@
+/* Modern Send Button style (integrated, pill-shaped) */
+.send-btn-modern {
+  box-shadow:
+    0 2px 8px 0 rgba(245, 158, 11, 0.1),
+    0 1px 4px 0 rgba(0, 0, 0, 0.08);
+  will-change: transform, box-shadow;
+}
+.send-btn-modern:hover:not(:disabled) {
+  box-shadow:
+    0 4px 16px 0 rgba(245, 158, 11, 0.16),
+    0 2px 8px 0 rgba(0, 0, 0, 0.1);
+  background: var(--color-accent-hover);
+  transform: translateY(-1px) scale(1.03);
+}
+.send-btn-modern:active:not(:disabled) {
+  box-shadow:
+    0 1px 4px 0 rgba(245, 158, 11, 0.08),
+    0 1px 2px 0 rgba(0, 0, 0, 0.07);
+  transform: scale(0.98);
+}
 /* Table row hover background for markdown tables */
 :root {
   --color-table-row-hover: rgba(0, 0, 0, 0.06);

@@ -478,11 +478,24 @@ const Dashboard = () => {
             />
             <button
               type="submit"
-              className="bg-(--color-accent) text-white border-none rounded-lg px-7 font-bold text-[16px] cursor-pointer shadow transition-all duration-150"
+              className="send-btn-modern flex items-center justify-center gap-2 bg-(--color-accent) text-white border-none rounded-full px-5 py-2 font-bold text-[16px] shadow-md transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-(--color-accent-hover) focus:ring-offset-2 hover:bg-(--color-accent-hover) active:scale-98 disabled:opacity-60 disabled:cursor-not-allowed"
               disabled={isLoading}
-              style={isLoading ? { opacity: 0.6, cursor: "not-allowed" } : {}}
+              aria-label="Send message"
             >
-              Send
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className="w-5 h-5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"
+                />
+              </svg>
             </button>
           </form>
         </div>
