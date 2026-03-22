@@ -1,3 +1,7 @@
+import userModel from "../models/user.model.js"
+import jwt from "jsonwebtoken"
+import { sendEmail } from "../services/mail.service.js"
+
 // Public endpoint to check if an email is already verified
 export async function checkVerified(req, res) {
   const { email } = req.query
@@ -14,9 +18,6 @@ export async function checkVerified(req, res) {
     return res.status(500).json({ message: "Server error", success: false })
   }
 }
-import userModel from "../models/user.model.js"
-import jwt from "jsonwebtoken"
-import { sendEmail } from "../services/mail.service.js"
 
 export async function register(req, res) {
   const { username, email, password } = req.body
@@ -337,8 +338,9 @@ export async function login(req, res) {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: true, // Required for SameSite=None
+      sameSite: "none", // Allow cross-site cookies for frontend/backend on different ports
+      path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     })
 
@@ -387,4 +389,15 @@ export async function getMe(req, res) {
       success: false,
     })
   }
+}
+
+// Logout controller: clears auth cookie
+export async function logout(req, res) {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true, // Required for SameSite=None
+    sameSite: "none",
+    path: "/",
+  })
+  return res.json({ message: "Logged out successfully", success: true })
 }

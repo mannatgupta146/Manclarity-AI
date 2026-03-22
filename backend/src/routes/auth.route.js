@@ -8,6 +8,7 @@ import {
   verifyEmail,
   getResendAttempts,
   checkVerified,
+  logout,
 } from "../controllers/auth.controller.js"
 import {
   loginValidator,
@@ -37,12 +38,11 @@ authRouter.get("/resend-attempts", getResendAttempts)
 authRouter.post("/login", loginValidator, login)
 
 /**
- * @route GET /api/auth/logout
+ * @route POST /api/auth/logout
  * @desc Logout a user
- * @access Private
+ * @access Private (but can be public for stateless logout)
  */
-/* authRouter.get("/logout")
- */
+authRouter.post("/logout", logout)
 /**
  * @route GET /api/auth/get-me
  * @desc Get current user info

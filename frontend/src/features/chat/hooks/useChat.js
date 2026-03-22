@@ -180,6 +180,16 @@ export const useChat = () => {
       role: msg.role,
       timestamp: msg.timestamp,
     }))
+    // Clear previous messages before adding new ones
+    dispatch(
+      setChats({
+        ...chats,
+        [chatId]: {
+          ...chats[chatId],
+          messages: [],
+        },
+      }),
+    )
     dispatch(
       addMessages({
         chatId,

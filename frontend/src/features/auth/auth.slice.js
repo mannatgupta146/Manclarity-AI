@@ -25,6 +25,13 @@ const authSlice = createSlice({
     setVerifyMessage: (state, action) => {
       state.verifyMessage = action.payload
     },
+    logout: (state) => {
+      state.user = null
+      state.loading = false
+      state.error = null
+      state.verifyStatus = "pending"
+      state.verifyMessage = ""
+    },
   },
 })
 
@@ -34,5 +41,6 @@ export const {
   setError,
   setVerifyStatus,
   setVerifyMessage,
+  logout,
 } = authSlice.actions
 export default authSlice.reducer

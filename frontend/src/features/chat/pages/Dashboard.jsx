@@ -8,6 +8,9 @@ import ThemeToggleButton from "../../../theme/ThemeToggleButton"
 import { useNavigate } from "react-router-dom"
 import { useChat } from "../hooks/useChat"
 import { setCurrentChatId, setChats } from "../chat.slice"
+import { logout as logoutAction } from "../../auth/auth.slice"
+import { logoutApi } from "../../auth/services/auth.api"
+import { useCallback } from "react"
 import { useDispatch, useSelector } from "react-redux"
 
 const Dashboard = () => {
@@ -43,11 +46,38 @@ const Dashboard = () => {
   } = useChat()
 
   // Fetch chats from backend on mount
+  // On mount, load chats and restore selected chat from localStorage
   useEffect(() => {
-    loadChats()
+    async function loadAndRestore() {
+      await loadChats()
+      const savedChatId = localStorage.getItem("currentChatId")
+      if (savedChatId) {
+        dispatch(setCurrentChatId(savedChatId))
+      }
+    }
+    loadAndRestore()
   }, [])
 
+  // After chats and currentChatId are set, load messages for selected chat if needed
+  useEffect(() => {
+    const savedChatId = localStorage.getItem("currentChatId")
+    if (
+      savedChatId &&
+      chats[savedChatId] &&
+      (!chats[savedChatId].messages || chats[savedChatId].messages.length === 0)
+    ) {
+      handleOpenChat(savedChatId)
+    }
+  }, [chats, currentChatId])
+
   // Handle sending a message
+  // Persist currentChatId to localStorage when it changes
+  useEffect(() => {
+    if (currentChatId) {
+      localStorage.setItem("currentChatId", currentChatId)
+    }
+  }, [currentChatId])
+
   const handleSend = (e) => {
     e.preventDefault()
     console.log(
@@ -70,13 +100,21 @@ const Dashboard = () => {
       : []
 
   const tags = [
-    "Getting Started",
-    "Account",
-    "Billing",
-    "Integrations",
-    "Troubleshooting",
-    "Feedback",
+    "Ask Anything",
+    "Fix a Problem",
+    "Learn Something",
+    "Explore Ideas",
   ]
+
+  // Ref for chat messages area
+  const messagesEndRef = React.useRef(null)
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [messages, currentChatId])
 
   return (
     <div className="flex min-h-screen bg-(--color-bg) text-(--color-text) flex-row">
@@ -162,7 +200,12 @@ const Dashboard = () => {
                   return (
                     <div
                       key={chat.id || chat._id}
-                      onClick={() => handleOpenChat(chat.id || chat._id)}
+                      onClick={() => {
+                        // Prevent reloading if already selected
+                        if ((chat.id || chat._id) !== currentChatId) {
+                          handleOpenChat(chat.id || chat._id)
+                        }
+                      }}
                       className={
                         `rounded-lg py-2 px-3.5 mb-2 cursor-pointer font-semibold text-[15px] transition-all duration-150 flex items-center justify-between ` +
                         (currentChatId === (chat.id || chat._id)
@@ -183,19 +226,42 @@ const Dashboard = () => {
         {/* Bottom: user info, logout (ThemeToggleButton moved out) */}
         <div className="px-7">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-8 h-8 rounded-full bg-(--color-accent) text-white flex items-center justify-center font-bold text-[20px] uppercase shadow border-2 border-(--color-border)">
-              {user?.name?.[0] || "U"}
+            <div className="w-7 h-7 rounded-full bg-(--color-accent) text-white flex items-center justify-center font-bold text-[18px] uppercase shadow border-2 border-(--color-border)">
+              {user?.username?.[0]?.toUpperCase() || "U"}
             </div>
             <span className="font-bold text-[16px] text-(--color-chat-user-text)">
-              {user?.name || "User"}
+              {user?.username ? user.username : "User"}
             </span>
           </div>
           <button
-            className="w-full bg-(--color-error-bg) text-(--color-error-text) border border-(--color-error-border) rounded-lg py-2 font-bold text-[15px] cursor-pointer mb-1 mt-1 transition-all duration-150"
-            onClick={() => {
-              /* TODO: implement logout */
+            className="w-full flex items-center justify-center gap-2 bg-red-400 text-white border-none rounded-lg py-2.5 font-semibold text-[15px] cursor-pointer mb-1 mt-1 hover:bg-red-500 active:bg-red-600 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-red-200 focus:ring-offset-2"
+            onClick={async () => {
+              // Call backend to clear cookie, then clear local state and redirect
+              try {
+                await logoutApi()
+              } catch (e) {}
+              localStorage.clear()
+              dispatch(logoutAction())
+              dispatch(setCurrentChatId(null))
+              dispatch(setChats({}))
+              navigate("/login")
             }}
+            title="Logout from your account"
           >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-5 h-5 mr-2 opacity-90"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1"
+              />
+            </svg>
             Logout
           </button>
         </div>
@@ -237,10 +303,13 @@ const Dashboard = () => {
                 >
                   {msg.role === "user" ? (
                     <div className="flex flex-row-reverse items-end gap-2 max-w-[70%]">
-                      <div className="w-6 h-6 flex items-center justify-center rounded-full bg-(--color-accent) text-white font-bold text-sm shadow select-none">
-                        {(user?.name || "U").charAt(0).toUpperCase()}
+                      <div className="w-6 h-6 flex items-center justify-center rounded-full bg-(--color-accent) text-white font-bold text-md shadow select-none">
+                        {(user?.username || "U").charAt(0).toUpperCase()}
                       </div>
                       <div className="px-4 py-2 rounded-2xl shadow border border-transparent wrap-break-word whitespace-pre-line max-w-120 bg-(--color-chat-user-bg) text-(--color-chat-user-text)">
+                        <span className="block text-xs font-semibold text-(--color-secondary) mb-1">
+                          {user?.username ? user.username : "User"}
+                        </span>
                         <span>{msg.content}</span>
                       </div>
                     </div>
@@ -389,6 +458,8 @@ const Dashboard = () => {
                 </div>
               ))
             )}
+            {/* Always scroll to bottom */}
+            <div ref={messagesEndRef} />
           </div>
         </div>
         {/* Chat input fixed at bottom */}
