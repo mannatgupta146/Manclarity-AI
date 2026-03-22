@@ -11,7 +11,16 @@ const Dashboard = () => {
   const { initializeSocketConnection } = useChat()
   const [chats, setChats] = useState([])
   const [selectedChat, setSelectedChat] = useState(null)
-  const [messages, setMessages] = useState([])
+  // Dummy messages for demonstration
+  const [messages, setMessages] = useState([
+    { sender: "user", text: "Hello, AI!" },
+    { sender: "ai", text: "Hello! How can I assist you today?" },
+    { sender: "user", text: "Tell me a joke." },
+    {
+      sender: "ai",
+      text: "Why did the developer go broke? Because he used up all his cache!",
+    },
+  ])
   const [input, setInput] = useState("")
   const [search, setSearch] = useState("")
   const tags = [
@@ -53,9 +62,9 @@ const Dashboard = () => {
             <img
               src="/brand.png"
               alt="Logo"
-              className="w-9.5 h-9.5 rounded-[10px] shadow-[0_2px_8px_#f59e0b22]"
+              className="w-7.5 h-7.5 rounded-lg shadow-[0_2px_8px_#f59e0b22]"
             />
-            <span className="font-extrabold text-[22px] text-(--color-accent) tracking-[0.5px]">
+            <span className="font-bold text-[22px] text-(--color-accent) tracking-[0.5px]">
               Manclarity AI
             </span>
           </div>
@@ -119,7 +128,7 @@ const Dashboard = () => {
             <ThemeToggleButton />
           </div>
           <div className="flex items-center gap-3 mb-2.5">
-            <div className="w-9.5 h-9.5 rounded-full bg-(--color-accent) text-white flex items-center justify-center font-extrabold text-[20px] uppercase shadow-[0_2px_8px_#f59e0b22] border-2 border-(--color-border)">
+            <div className="w-8 h-8 rounded-full bg-(--color-accent) text-white flex items-center justify-center font-bold text-[20px] uppercase shadow-[0_2px_x_#f59e0b22] border-2 border-(--color-border)">
               {user?.name?.[0] || "U"}
             </div>
             <span className="font-bold text-[16px] text-(--color-chat-user-text)">
@@ -137,27 +146,81 @@ const Dashboard = () => {
         </div>
       </aside>
       <main className="dashboard-main flex flex-col flex-1 min-h-screen bg-(--color-bg) text-(--color-text) z-1">
-        <div className="flex-1 flex flex-col items-center justify-center min-w-0 w-full box-border px-2.5">
-          <h1 className="text-[32px] font-extrabold text-(--color-accent) mb-4.5 tracking-[0.2px]">
-            How can I help you today?
-          </h1>
-          <div className="flex gap-3 flex-wrap mb-7.5">
-            {tags.map((tag) => (
-              <span
-                key={tag}
-                className="bg-(--color-card) border-[1.5px] border-(--color-border) text-(--color-secondary) dark:border-zinc-700 rounded-lg p-[7px_18px] font-bold text-[15px] cursor-pointer transition-all duration-150"
-              >
-                {tag}
-              </span>
-            ))}
+        {/* Welcome message and tags, only show if no chat messages */}
+        <div className="flex-1 flex flex-col items-center min-w-0 w-full box-border px-2.5 z-0">
+          <div
+            className="flex flex-col w-full max-w-150 mx-auto px-4 py-8 gap-2 flex-1 justify-start overflow-y-auto"
+            style={{ minHeight: 200 }}
+          >
+            {messages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center w-full h-full">
+                <h1 className="text-[32px] font-bold text-(--color-accent) mb-4.5 tracking-[0.2px]">
+                  How can I help you today?
+                </h1>
+                <div className="flex gap-3 flex-wrap mb-7.5">
+                  {tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="bg-(--color-card) border-[1.5px] border-(--color-border) text-(--color-secondary) dark:border-zinc-700 rounded-lg p-[7px_18px] font-bold text-[15px] cursor-pointer transition-all duration-150"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              messages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={
+                    "flex w-full mb-4 " +
+                    (msg.sender === "user" ? "justify-end" : "justify-start")
+                  }
+                >
+                  {msg.sender === "user" ? (
+                    <div className="flex flex-row-reverse items-end gap-2 max-w-[70%]">
+                      <div className="w-6 h-6 flex items-center justify-center rounded-full bg-(--color-accent) text-white font-bold text-sm shadow select-none">
+                        {(user?.name || "U").charAt(0).toUpperCase()}
+                      </div>
+                      <div
+                        className="px-4 py-2 rounded-2xl shadow border border-transparent"
+                        style={{
+                          background: "var(--color-chat-user-bg)",
+                          color: "var(--color-chat-user-text)",
+                        }}
+                      >
+                        <span>{msg.text}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-end gap-2 max-w-[70%]">
+                      <img
+                        src="/brand.png"
+                        alt="AI"
+                        className="w-6 h-6 rounded-md shadow select-none"
+                      />
+                      <div className="px-4 py-2 rounded-2xl shadow border border-(--color-border) bg-(--color-card) text-(--color-primary)">
+                        <span>{msg.text}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </div>
+        {/* Chat messages */}
         {/* Input bar */}
         <div className="w-full pb-8 flex justify-center box-border">
-          <form className="w-full max-w-150 flex gap-2.5 box-border">
+          <form
+            className="w-full max-w-150 flex gap-2.5 box-border"
+            onSubmit={handleSend}
+          >
             <input
               type="text"
               placeholder="Type your message..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
               className="flex-1 p-[13px_18px] rounded-[10px] border-[1.5px] border-(--color-border) bg-(--color-chat-input-bg) text-(--color-chat-input-text) text-[16px] outline-none box-border"
             />
             <button
