@@ -172,7 +172,8 @@ const Dashboard = () => {
               } else if (filteredChats.length === 0) {
                 return (
                   <div className="text-(--color-secondary) text-center mt-5">
-                    No chats found for "<span className="font-semibold">{search}</span>"
+                    No chats found for "
+                    <span className="font-semibold">{search}</span>"
                   </div>
                 )
               } else {
@@ -338,6 +339,16 @@ const Dashboard = () => {
                           <ReactMarkdown
                             remarkPlugins={[remarkGfm]}
                             components={{
+                              a: ({ href, children }) => (
+                                <a
+                                  href={href}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 dark:text-sky-400 underline underline-offset-2 hover:text-blue-800 dark:hover:text-sky-300 font-medium transition-colors"
+                                >
+                                  {children}
+                                </a>
+                              ),
                               h1: ({ children }) => (
                                 <h1 className="text-xl font-bold mt-3 mb-2">
                                   {children}

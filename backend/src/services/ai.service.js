@@ -1,12 +1,13 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai"
 import { ChatMistralAI } from "@langchain/mistralai"
-import { HumanMessage, SystemMessage, AIMessage, tool, createAgent } from "langchain"
-import * as z from "zod"
-import { searchInternet } from "./internet.service"
+import { HumanMessage, SystemMessage } from "langchain"
+import { searchInternet } from "./internet.service.js"
 
+// ---------------- MODELS ----------------
 const geminiModel = new ChatGoogleGenerativeAI({
   model: "gemini-2.5-flash-lite",
   apiKey: process.env.GEMINI_API_KEY,
+  temperature: 0.3, // lower = more factual, less hallucination
 })
 
 const mistralModel = new ChatMistralAI({
@@ -14,49 +15,86 @@ const mistralModel = new ChatMistralAI({
   apiKey: process.env.MISTRAL_API_KEY,
 })
 
-const searchInternetTool = tool(
-  searchInternet,
-  {
-    name: "search_internet",
-    description: "Use this tool to get the latest information from the internet.",
-    schema: z.object({
-      query: z.string().describe("The search query to find relevant information on the internet."),
-    }),
-  }
-)
-
-const agent = createAgent({
-  model: geminiModel,
-  tools: [searchInternetTool],
-})
-
+// ---------------- RESPONSE FUNCTION ----------------
 export async function generateResponse(messages) {
-  const response = await agent.invoke({
-    messages: messages.map((msg) => {
-      if (msg.role === "user") {
-        return new HumanMessage(msg.content)
-      } else if (msg.role === "assistant") {
-        return new AIMessage(msg.content)
-      } else {
-        throw new Error(`Unknown message role: ${msg.role}`)
-      } 
-    }),
-  })
+  const lastMsg = messages[messages.length - 1]
 
-  return response.messages[response.messages.length - 1].text
-}
+  // 🔥 STEP 1: ALWAYS SEARCH
+  const result = await searchInternet(lastMsg.content)
 
-export async function generateChatTitle(message) {
-  const response = await mistralModel.invoke([
-    new SystemMessage(
-      `Generate a concise and descriptive title for the following conversation:
-      User will provide a message, and you will generate a title that captures the essence of the conversation in 2-4 words. 
-      The title should be catchy and relevant to the content of the message.`
-    ),
-    new HumanMessage(
-      `Generate a title for chat conversation based on the following first message: "${message}"`
-    )
+  if (!result?.results || result.results.length === 0) {
+    return "No relevant results found."
+  }
+
+  // 🔥 STEP 2: FILTER JUNK LINKS
+  const filtered = result.results.filter(r =>
+    !r.url.includes("olx") &&
+    !r.url.includes("quikr") &&
+    !r.url.includes("indiamart")
+  )
+
+  // 🔥 STEP 3: STRUCTURE DATA (SOURCE OF TRUTH)
+  const context = filtered.map((r, i) => `
+Source ${i + 1}:
+Title: ${r.title}
+Snippet: ${r.snippet}
+URL: ${r.url}
+`).join("\n")
+
+  // 🔥 STEP 4: FORCE LLM TO USE ONLY THIS DATA
+  const response = await geminiModel.invoke([
+    new SystemMessage(`
+You are an AI assistant that answers ONLY using provided search results.
+
+STRICT RULES:
+- DO NOT use your own knowledge.
+- DO NOT guess or assume anything.
+- DO NOT add information not present in sources.
+- If information is unclear or missing → say "Not clearly stated in sources".
+- NEVER say "I cannot access real-time data".
+
+RESPONSE REQUIREMENTS:
+- Minimum 150-250 words
+- Use headings and bullet points
+- Include dates if available
+- Clearly explain the answer
+- Keep it factual and grounded in sources
+
+STRICTLY FORBIDDEN:
+- Hallucinating facts
+- Adding external knowledge
+- Correcting sources using your own memory
+`),
+
+    new HumanMessage(`
+Question:
+${lastMsg.content}
+
+Search Results (ONLY SOURCE OF TRUTH):
+${context}
+
+Instructions:
+- Extract facts from sources
+- Combine and summarize clearly
+- Do NOT add anything extra
+`)
   ])
 
-  return response.text
+  // 🔥 STEP 5: ADD SOURCES (LIKE PERPLEXITY)
+  const sources = filtered
+    .slice(0, 3)
+    .map(r => `- ${r.url}`)
+    .join("\n")
+
+  return `${response.text}\n\nSources:\n${sources}`
+}
+
+// ---------------- TITLE GENERATION ----------------
+export async function generateChatTitle(message) {
+  const response = await mistralModel.invoke([
+    new SystemMessage(`Generate a short 2-4 word title.`),
+    new HumanMessage(message)
+  ])
+
+  return response.text.trim()
 }
