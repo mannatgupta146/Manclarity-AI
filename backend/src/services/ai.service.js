@@ -1,7 +1,8 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai"
 import { ChatMistralAI } from "@langchain/mistralai"
-
-import { HumanMessage, SystemMessage, AIMessage } from "langchain"
+import { HumanMessage, SystemMessage, AIMessage, tool, createAgent } from "langchain"
+import * as z from "zod"
+import { searchInternet } from "./internet.service"
 
 const geminiModel = new ChatGoogleGenerativeAI({
   model: "gemini-2.5-flash-lite",
@@ -13,16 +14,36 @@ const mistralModel = new ChatMistralAI({
   apiKey: process.env.MISTRAL_API_KEY,
 })
 
-export async function generateResponse(messages) {
-  const response = await geminiModel.invoke(
-    messages.map((msg) => {
-      if (msg.role === "user") return new HumanMessage(msg.content)
-      else if (msg.role === "ai") return new AIMessage(msg.content)  
-    return new HumanMessage(msg.content)
-    })
-  )
+const searchInternetTool = tool(
+  searchInternet,
+  {
+    name: "search_internet",
+    description: "Use this tool to get the latest information from the internet.",
+    schema: z.object({
+      query: z.string().describe("The search query to find relevant information on the internet."),
+    }),
+  }
+)
 
-  return response.content
+const agent = createAgent({
+  model: geminiModel,
+  tools: [searchInternetTool],
+})
+
+export async function generateResponse(messages) {
+  const response = await agent.invoke({
+    messages: messages.map((msg) => {
+      if (msg.role === "user") {
+        return new HumanMessage(msg.content)
+      } else if (msg.role === "assistant") {
+        return new AIMessage(msg.content)
+      } else {
+        throw new Error(`Unknown message role: ${msg.role}`)
+      } 
+    }),
+  })
+
+  return response.messages[response.messages.length - 1].text
 }
 
 export async function generateChatTitle(message) {
@@ -37,5 +58,5 @@ export async function generateChatTitle(message) {
     )
   ])
 
-  return response.content
+  return response.text
 }
